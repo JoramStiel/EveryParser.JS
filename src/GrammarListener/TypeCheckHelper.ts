@@ -26,7 +26,7 @@
     /// <param name="objs"></param>
     /// <returns></returns>
     static IsStringOrStringList = (objs: Array<any>): objs is Array<any> =>
-        !objs.find(obj => !(obj instanceof String || (obj.find !== undefined && !obj.find(x => !(x instanceof String)))));
+        !objs.find(obj => !(obj instanceof String || (obj.find !== undefined && !obj.find(x => !this.IsString(x)))));
 
     /// <summary>
     /// Checks if all objects are type of string or List(object)
