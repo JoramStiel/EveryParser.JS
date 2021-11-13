@@ -15,7 +15,8 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "@no-multiple-empty-lines": ["error", { "max": 2 }],
-        "@eol-last": ["error", "never"]
+        "no-multiple-empty-lines": ["error", { "max": 2 }],
+        "eol-last": ["always", "never"],
+        "linebreak-style": ["error", "windows"]
     }
 }

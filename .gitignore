@@ -1,4 +1,4 @@
 /node_modules
 /.antlr
 /antlr-4.9.2-complete.jar
-/build
+/lib
