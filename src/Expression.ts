@@ -1,6 +1,4 @@
-﻿namespace EveryParser
-{
-    public class Expression
+﻿export class Expression
     {
         private _formular:string;
 
@@ -435,4 +433,3 @@
                 throw new ArgumentNullException(nameof(_formular));
         }
     }
-}

@@ -1,4 +1,4 @@
-﻿class TypeCheckHelper {
+﻿export class TypeCheckHelper {
     /// <summary>
     /// Checks if all objects are type of List(object)
     /// </summary>

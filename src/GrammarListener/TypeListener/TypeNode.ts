@@ -1,32 +1,32 @@
-﻿namespace EveryParser.GrammarListener.TypeListener {
-    export class TypeNode {
-        public Parent?: TypeNode;
-        public ValueType = EveryParserType.None;
-        public Children: TypeNode[] = [];
+﻿import { EveryParserType } from "./EveryParserType";
 
-        constructor(parent?: TypeNode) {
-            this.Parent = parent;
-        }
+export class TypeNode {
+    public Parent?: TypeNode;
+    public ValueType = EveryParserType.None;
+    public Children: TypeNode[] = [];
 
-        public static CreateFromType(type: EveryParserType): TypeNode {
-            let node = new TypeNode();
-            node.ValueType = type;
-            return node;
-        }
+    constructor(parent?: TypeNode) {
+        this.Parent = parent;
+    }
 
-        public static CreateFromParentAndType(parent: TypeNode, type: EveryParserType): TypeNode {
-            let node = new TypeNode(parent);
-            node.ValueType = type;
-            return node;
-        }
+    public static CreateFromType(type: EveryParserType): TypeNode {
+        let node = new TypeNode();
+        node.ValueType = type;
+        return node;
+    }
 
-        public AddChildNode = (value = EveryParserType.None): TypeNode => {
-            if (this.Children)
-                this.Children = [];
+    public static CreateFromParentAndType(parent: TypeNode, type: EveryParserType): TypeNode {
+        let node = new TypeNode(parent);
+        node.ValueType = type;
+        return node;
+    }
 
-            const newNode = TypeNode.CreateFromParentAndType(this, value);
-            this.Children.push(newNode);
-            return newNode;
-        }
+    public AddChildNode = (value = EveryParserType.None): TypeNode => {
+        if (this.Children)
+            this.Children = [];
+
+        const newNode = TypeNode.CreateFromParentAndType(this, value);
+        this.Children.push(newNode);
+        return newNode;
     }
 }
