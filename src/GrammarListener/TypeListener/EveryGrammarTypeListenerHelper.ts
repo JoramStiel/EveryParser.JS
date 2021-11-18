@@ -52,7 +52,7 @@ export class EveryGrammarTypeListenerHelper {
 
     public static CheckListOfNumbersUnary(context: ParserRuleContext, node: TypeNode, errorCollector: ErrorCollector) {
         if (errorCollector.CheckParamsCount(context, 1, node.Children)) {
-            if (node.Children[0].ValueType != EveryParserType.ArrayOfNumber)
+            if (!EveryParserTypeHelper.IsNumberArray(node.Children[0].ValueType))
                 errorCollector.AddError(context, ErrorCode.IsNotNumberArray, "Parameter is not an Array of Numbers!");
             else
                 node.ValueType = EveryParserType.Number;
