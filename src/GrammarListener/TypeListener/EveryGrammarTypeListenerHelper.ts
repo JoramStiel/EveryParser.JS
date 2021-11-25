@@ -267,7 +267,7 @@ export class EveryGrammarTypeListenerHelper {
     /// </summary>
     /// <param name="context"></param>
     /// <param name="expectedDateParameters"></param>
-    public static SetnodeForDateTimeValue(context: ParserRuleContext, node: TypeNode, errorCollector: ErrorCollector, expectedDateParameters: number) {
+    public static SetNodeForDateTimeValue(context: ParserRuleContext, node: TypeNode, errorCollector: ErrorCollector, expectedDateParameters: number) {
         if (!errorCollector.CheckParamsCount(context, expectedDateParameters, node.Children)) {
             node.ValueType = EveryParserType.None;
             return node.Parent;
