@@ -22,7 +22,7 @@ export class TypeNode {
     }
 
     public AddChildNode = (value = EveryParserType.None): TypeNode => {
-        if (this.Children)
+        if (!this.Children)
             this.Children = [];
 
         const newNode = TypeNode.CreateFromParentAndType(this, value);

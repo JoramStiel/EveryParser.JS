@@ -4,7 +4,7 @@
     /// </summary>
     /// <param name="objs"></param>
     /// <returns></returns>
-    static IsArrayOfObjectList = (objs: Array<any>): objs is Array<any> => !objs.find(obj => !(obj.map !== undefined));
+    static IsArrayOfObjectList = (objs: Array<any>): objs is Array<any> => !objs.find(obj => !this.IsArray(obj));
 
     /// <summary>
     /// Checks if all objects are type of boolean
@@ -90,4 +90,6 @@
     static IsString = (obj: any): obj is string => obj instanceof String;
 
     static IsArrayOfDateTime = (objs: Array<any>): objs is Array<any> => !objs.find(obj => !this.IsDateTime(obj));
+
+    static IsArray = (obj: any): obj is Array<any> => obj.find !== undefined;
 }
