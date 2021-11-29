@@ -1,8 +1,9 @@
 // Generated from EveryGrammar.g4 by ANTLR 4.9.2
 // jshint ignore: start
 import { ParserRuleContext } from 'antlr4';
-import { ErrorNode, ParseTreeListener, TerminalNode } from 'antlr4/tree/Tree';
+import { ErrorNode, TerminalNode } from 'antlr4/tree/Tree';
 import { Argument } from '../../Argument';
+import EveryGrammarListener from '../../EveryGrammarListener';
 import { ArraySlicingType } from '../ArraySlicingType';
 import { ErrorCode, ErrorCollector } from '../ErrorCollector';
 import { TypeCheckHelper } from '../TypeCheckHelper';
@@ -11,7 +12,7 @@ import { EveryParserType, EveryParserTypeHelper } from './EveryParserType';
 import { TypeNode } from './TypeNode';
 
 // This class defines a complete listener for a parse tree produced by EveryGrammarParser.
-export class EveryGrammarTypeListener implements ParseTreeListener {
+export class EveryGrammarTypeListener implements EveryGrammarListener {
 
 	private result: EveryParserType;
 	private node?: TypeNode;
@@ -22,17 +23,15 @@ export class EveryGrammarTypeListener implements ParseTreeListener {
 	public Result = () => this.result;
 
 
-	constructor(argus: Argument[]) {
-		this.arguments = argus;
+	constructor(args: Argument[]) {
+		this.arguments = args;
 		this.errorCollector = new ErrorCollector();
 		this.result = EveryParserType.None;
 		this.lastArraySlicingType = ArraySlicingType.Indexing;
 	}
 
 
-	public visitTerminal(node: TerminalNode): void {
-
-	}
+	public visitTerminal(node: TerminalNode): void { }
 
 
 	public visitErrorNode(node: ErrorNode): void { }

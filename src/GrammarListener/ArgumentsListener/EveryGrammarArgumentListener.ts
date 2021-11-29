@@ -1,10 +1,11 @@
 // Generated from EveryGrammar.g4 by ANTLR 4.9.2
 // jshint ignore: start
 import { ParserRuleContext } from 'antlr4';
-import { ErrorNode, ParseTreeListener, TerminalNode } from 'antlr4/tree/Tree';
+import { ErrorNode, TerminalNode } from 'antlr4/tree/Tree';
+import EveryGrammarListener from '../../EveryGrammarListener';
 
 // This class defines a complete listener for a parse tree produced by EveryGrammarParser.
-export class EveryGrammarArgumentListener implements ParseTreeListener {
+export class EveryGrammarArgumentListener implements EveryGrammarListener {
 
 	private variables: string[] = [];
 
