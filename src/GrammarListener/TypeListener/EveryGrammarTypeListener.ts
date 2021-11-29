@@ -11,7 +11,7 @@ import { EveryParserType, EveryParserTypeHelper } from './EveryParserType';
 import { TypeNode } from './TypeNode';
 
 // This class defines a complete listener for a parse tree produced by EveryGrammarParser.
-export class EveryGrammarListener implements ParseTreeListener {
+export class EveryGrammarTypeListener implements ParseTreeListener {
 
 	private result: EveryParserType;
 	private node?: TypeNode;
@@ -733,7 +733,7 @@ export class EveryGrammarListener implements ParseTreeListener {
 		const text = context.getText();
 		let type = EveryParserType.None;
 
-		if (text === "e" || text === "pi")
+		if (text.toLowerCase() === "e" || text.toLowerCase() === "pi")
 			type = EveryParserType.Number;
 		else {
 			var value = this.errorCollector.GetCheckedArgument(context, this.arguments, text);
@@ -775,7 +775,7 @@ export class EveryGrammarListener implements ParseTreeListener {
 		const text = context.getText();
 		let type = EveryParserType.None;
 
-		if (text == "DateTime.Now")
+		if (text.toLowerCase() == "datetime.now")
 			type = EveryParserType.DateTime;
 		else {
 			var value = this.errorCollector.GetCheckedObjectArgument(context, this.arguments, text);
