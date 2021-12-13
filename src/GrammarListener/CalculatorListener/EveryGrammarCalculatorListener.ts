@@ -446,7 +446,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Check_Greater.
     public exitCheck_Greater(context: ParserRuleContext): void {
-        const calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) > Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) > Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -462,7 +462,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Check_GreaterEqual.
     public exitCheck_GreaterEqual(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) >= Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) >= Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -478,7 +478,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Check_Lower.
     public exitCheck_Lower(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) < Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) < Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -494,7 +494,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Check_LowerEqual.
     public exitCheck_LowerEqual(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) <= Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) <= Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -511,7 +511,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
     // Exit a parse tree produced by EveryGrammarParser#BitOR.
     public exitBitOR(context: ParserRuleContext): void {
         if (!errorCollector.CheckHasParams(context, this.node.Children)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
@@ -521,12 +521,12 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
             !errorCollector.CheckIsNumber(context, childValues)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        this.node.Value = Convert.ToInt64(childValues[0]) | Convert.ToInt64(childValues[1]);
+        this.node.Value = Number(childValues[0]) | Number(childValues[1]);
         this.node = this.node.Parent;
     }
 
@@ -551,7 +551,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
     // Exit a parse tree produced by EveryGrammarParser#BitAnd.
     public exitBitAnd(context: ParserRuleContext): void {
         if (!errorCollector.CheckHasParams(context, this.node.Children)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
@@ -561,12 +561,12 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
             !errorCollector.CheckIsNumber(context, childValues)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        this.node.Value = Convert.ToInt64(childValues[0]) & Convert.ToInt64(childValues[1]);
+        this.node.Value = Number(childValues[0]) & Number(childValues[1]);
         this.node = this.node.Parent;
     }
 
@@ -590,7 +590,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Line_Addition.
     public exitLine_Addition(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) + Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) + Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -606,7 +606,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Line_Subtraction.
     public exitLine_Subtraction(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) - Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) - Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -631,7 +631,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_PowerOperator.
     public exitPointTerm_PowerOperator(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)Math.Pow(Convert.ToDouble(x1), Convert.ToDouble(x2));
+        const calculation = (x1, x2) => Math.pow(x1, x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -647,7 +647,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_Modulo.
     public exitPointTerm_Modulo(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) % Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) % Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -663,7 +663,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_Multiply.
     public exitPointTerm_Multiply(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) * Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) * Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -680,7 +680,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_BitShiftLeft.
     public exitPointTerm_BitShiftLeft(context: ParserRuleContext): void {
         if (!errorCollector.CheckHasParams(context, this.node.Children)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
@@ -690,12 +690,12 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
             !errorCollector.CheckIsNumber(context, childValues)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        this.node.Value = Convert.ToInt64(childValues[0]) << Convert.ToInt32(childValues[1]);
+        this.node.Value = Number(childValues[0]) << Number(childValues[1]);
         this.node = this.node.Parent;
     }
 
@@ -710,7 +710,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_IntegerDivision.
     public exitPointTerm_IntegerDivision(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToInt64(x1) / Convert.ToInt64(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) / Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -727,7 +727,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_BitShiftRight.
     public exitPointTerm_BitShiftRight(context: ParserRuleContext): void {
         if (!errorCollector.CheckHasParams(context, this.node.Children)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
@@ -737,12 +737,12 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
             !errorCollector.CheckIsNumber(context, childValues)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        this.node.Value = Convert.ToInt64(childValues[0]) >> Convert.ToInt32(childValues[1]);
+        this.node.Value = Number(childValues[0]) >> Number(childValues[1]);
         this.node = this.node.Parent;
     }
 
@@ -757,7 +757,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_Divide.
     public exitPointTerm_Divide(context: ParserRuleContext): void {
-        const  calculation = (x1, x2) => (object)(Convert.ToDecimal(x1) / Convert.ToDecimal(x2));
+        const calculation = (x1, x2) => (object)(Number(x1) / Number(x2));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -783,7 +783,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
     // Exit a parse tree produced by EveryGrammarParser#Factor_Not.
     public exitFactor_Not(context: ParserRuleContext): void {
         if (!errorCollector.CheckHasParams(context, this.node.Children)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
@@ -793,2281 +793,2256 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
             !errorCollector.CheckIsBooleanOrArrayOfBoolean(context, childValues)) {
-            this.node.Value = double.NaN;
+            this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        if (childValues[0] is List < object > list)
-        this.node.Value = list.map(x => (object)!Convert.ToBoolean(x));
+        if (TypeCheckHelper.IsArray(childValues[0]))
+            this.node.Value = list.map(x => !x);
         else
-this.node.Value = !Convert.ToBoolean(childValues[0]);
+            this.node.Value = !childValues[0];
 
-this.node = this.node.Parent;}
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Minus.
     public enterFactor_Minus(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Minus.
     public exitFactor_Minus(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object) - Convert.ToDecimal(x);
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => -x;
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Plus.
     public enterFactor_Plus(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Plus.
     public exitFactor_Plus(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-const childValues = this.node.Children.map(child => child.Value);
+        const childValues = this.node.Children.map(child => child.Value);
 
-if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues) ||
-    !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues) ||
+            !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-this.node.Value = childValues[0];
-this.node = this.node.Parent;}
+        this.node.Value = childValues[0];
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Tilde.
     public enterFactor_Tilde(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Tilde.
     public exitFactor_Tilde(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object)~Convert.ToInt64(x);
-this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        const calculation = x => ~x;
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Factorial.
     public enterFactor_Factorial(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Factorial.
     public exitFactor_Factorial(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object)CalculationHelper.CalcFactorial(Convert.ToInt32(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => CalculationHelper.CalcFactorial(x);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Brackets.
-    public enterFactor_Brackets(context: ParserRuleContext): void {}
+    public enterFactor_Brackets(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Brackets.
-    public exitFactor_Brackets(context: ParserRuleContext): void {}
+    public exitFactor_Brackets(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_True.
     public enterFactor_True(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode(true);
-}
+        if (this.node)
+            this.node = this.node.AddChildNode(true);
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_True.
-    public exitFactor_True(context: ParserRuleContext): void {}
+    public exitFactor_True(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_False.
     public enterFactor_False(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode(false);
-}
+        if (this.node)
+            this.node = this.node.AddChildNode(false);
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_False.
-    public exitFactor_False(context: ParserRuleContext): void {}
+    public exitFactor_False(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Integer.
     public enterFactor_Integer(context: ParserRuleContext): void {
-    if(!this.node)
-    return;
+        if (!this.node)
+            return;
 
-    string text = context.GetText();
-    if(long.TryParse(text, out long value))
-    Node.AddChildNode(value);
-    else
-        {
-        this.errorCollector.AddTypeConversionError(context, text, typeof (long));
-        Node.AddChildNode(double.NaN);
+        const text = context.getText();
+        const parsedNumber = Number(text);
+
+        if (Number.isNaN(parsedNumber))
+            this.node.AddChildNode(parsedNumber);
+        else {
+            this.errorCollector.AddTypeConversionError(context, text, "number");
+            this.node.AddChildNode(NaN);
+        }
     }
-}
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Integer.
-    public exitFactor_Integer(context: ParserRuleContext): void {}
+    public exitFactor_Integer(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Double.
     public enterFactor_Double(context: ParserRuleContext): void {
-    if(!this.node)
-    return;
+        if (!this.node)
+            return;
 
-    string text = context.GetText();
-    if(decimal.TryParse(text, System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out decimal value))
-    Node.AddChildNode(value);
-    else
-        {
-        this.errorCollector.AddTypeConversionError(context, text, typeof (decimal));
-        Node.AddChildNode(double.NaN);
+        const text = context.getText();
+        const parsedNumber = Number(text);
+
+        if (Number.isNaN(parsedNumber))
+            this.node.AddChildNode(parsedNumber);
+        else {
+            this.errorCollector.AddTypeConversionError(context, text, typeof (decimal));
+            this.node.AddChildNode(NaN);
+        }
     }
-}
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Double.
-    public exitFactor_Double(context: ParserRuleContext): void {}
+    public exitFactor_Double(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Variable.
     public enterFactor_Variable(context: ParserRuleContext): void {
-    if(!this.node)
-    return;
+        if (!this.node)
+            return;
 
-    string text = context.GetText();
-    object value;
+        const text = context.getText();
+        let value: any = null;
 
-    if(text.Equals("e", StringComparison.InvariantCultureIgnoreCase))
-    value = 2.71828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746m;
-    else if(text.Equals("pi", StringComparison.InvariantCultureIgnoreCase))
-    value = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214m;
-    else
-                value = ErrorCollector.GetCheckedArgument(context, _arguments, text);
+        if (text.toLowerCase() === "e")
+            value = 2.71828182845904523536028747135266249775724709369995957496696762772407663035354759457138217852516642742746;
+        else if (text.toLowerCase() === "pi")
+            value = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214;
+        else
+            value = ErrorCollector.GetCheckedArgument(context, _arguments, text);
 
-    Node.AddChildNode(value);
-}
+        this.node.AddChildNode(value);
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Variable.
-    public exitFactor_Variable(context: ParserRuleContext): void {}
+    public exitFactor_Variable(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_ObjectVariables.
     public enterFactor_ObjectVariables(context: ParserRuleContext): void {
-    if(!this.node)
-    return;
+        if (!this.node)
+            return;
 
-    string text = context.GetText();
-    object value;
+        const text = context.getText();
+        let value: any;
 
-    if(text.Equals("DateTime.Now", StringComparison.InvariantCultureIgnoreCase))
-    value = DateTime.Now;
-    else
-                value = ErrorCollector.GetCheckedObjectArgument(context, _arguments, text);
+        if (text.toLowerCase() === "DateTime.Now".toLowerCase())
+            value = DateTime.Now;
+        else
+            value = ErrorCollector.GetCheckedObjectArgument(context, _arguments, text);
 
-    Node.AddChildNode(value);
-}
+        this.node.AddChildNode(value);
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_ObjectVariables.
-    public exitFactor_ObjectVariables(context: ParserRuleContext): void {}
+    public exitFactor_ObjectVariables(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_String.
     public enterFactor_String(context: ParserRuleContext): void {
-    if(!this.node)
-    return;
+        if (!this.node)
+            return;
 
-    const text = context.GetText();
-    if(string.IsNullOrWhiteSpace(text) || text.Length == 2)
-    text = string.Empty;
-    else
-                text = text.Substring(1, text.Length - 2);
+        const text = context.getText().trim();
+        if (text.trim || text.Length <= 2)
+            text = string.Empty;
+        else
+            text = text.slice(1, text.Length - 2);
 
-    Node.AddChildNode(text);
-}
+        this.node.AddChildNode(text);
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_String.
-    public exitFactor_String(context: ParserRuleContext): void {}
+    public exitFactor_String(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_DateTimeTerm.
-    public enterFactor_DateTimeTerm(context: ParserRuleContext): void {}
+    public enterFactor_DateTimeTerm(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_DateTimeTerm.
-    public exitFactor_DateTimeTerm(context: ParserRuleContext): void {}
+    public exitFactor_DateTimeTerm(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_Array.
-    public enterFactor_Array(context: ParserRuleContext): void {}
+    public enterFactor_Array(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Array.
-    public exitFactor_Array(context: ParserRuleContext): void {}
+    public exitFactor_Array(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_DefaultFunction.
-    public enterFactor_DefaultFunction(context: ParserRuleContext): void {}
+    public enterFactor_DefaultFunction(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_DefaultFunction.
-    public exitFactor_DefaultFunction(context: ParserRuleContext): void {}
+    public exitFactor_DefaultFunction(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_CheckFunction.
-    public enterFactor_CheckFunction(context: ParserRuleContext): void {}
+    public enterFactor_CheckFunction(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_CheckFunction.
-    public exitFactor_CheckFunction(context: ParserRuleContext): void {}
+    public exitFactor_CheckFunction(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_ConvertFunction.
-    public enterFactor_ConvertFunction(context: ParserRuleContext): void {}
+    public enterFactor_ConvertFunction(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_ConvertFunction.
-    public exitFactor_ConvertFunction(context: ParserRuleContext): void {}
+    public exitFactor_ConvertFunction(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_MathFunction.
-    public enterFactor_MathFunction(context: ParserRuleContext): void {}
+    public enterFactor_MathFunction(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_MathFunction.
-    public exitFactor_MathFunction(context: ParserRuleContext): void {}
+    public exitFactor_MathFunction(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_RandomFunction.
-    public enterFactor_RandomFunction(context: ParserRuleContext): void {}
+    public enterFactor_RandomFunction(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_RandomFunction.
-    public exitFactor_RandomFunction(context: ParserRuleContext): void {}
+    public exitFactor_RandomFunction(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Factor_StatisticMathFunction.
-    public enterFactor_StatisticMathFunction(context: ParserRuleContext): void {}
+    public enterFactor_StatisticMathFunction(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_StatisticMathFunction.
-    public exitFactor_StatisticMathFunction(context: ParserRuleContext): void {}
+    public exitFactor_StatisticMathFunction(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Random_Decimal.
     public enterRandom_Decimal(context: ParserRuleContext): void {
-    if(this.node)
-    Node.AddChildNode(_randomizer.NextDouble() + _randomizer.Next());
-}
+        if (this.node)
+            this.nodeAddChildNode(_randomizer.NextDouble() + _randomizer.Next());
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Random_Decimal.
-    public exitRandom_Decimal(context: ParserRuleContext): void {}
+    public exitRandom_Decimal(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Random_DecimalArray.
     public enterRandom_DecimalArray(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Random_DecimalArray.
     public exitRandom_DecimalArray(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => {
-            int count = int.Parse(x.ToString());
+        const calculation = x => {
+            const count = Number(x);
 
-        const result = new List<object>(count);
-        for (int i = 0; i < count; i += 1)
-        result.Add(_randomizer.NextDouble() + _randomizer.Next());
+            const result: number[] = [];
+            for (let i = 0; i < count; i += 1)
+                result.push(_randomizer.NextDouble() + _randomizer.Next());
 
-        return result;
-    };
-    this.node.Value = CalculationHelper.CalcNumericUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+            return result;
+        };
+        this.node.Value = CalculationHelper.CalcNumericUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Random_DecimalMinMax.
     public enterRandom_DecimalMinMax(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Random_DecimalMinMax.
     public exitRandom_DecimalMinMax(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x, y) => {
-            int min = int.Parse(x.ToString());
-            int max = int.Parse(y.ToString());
+        const calculation = (x, y) => {
+            const min = Number(x);
+            const max = Number(y);
 
-            double result = _randomizer.Next(min, max);
+            let result = _randomizer.Next(min, max);
 
-        if ((int)result == min)
-        result += Math.Abs(_randomizer.NextDouble());
+            if (result === min)
+                result += Math.abs(_randomizer.NextDouble());
             else
                 result += _randomizer.NextDouble();
 
-    return result;
-};
-this.node.Value = CalculationHelper.CalcNumericBinary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent;}
+            return result;
+        };
+        this.node.Value = CalculationHelper.CalcNumericBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Random_DecimalArrayMinMax.
     public enterRandom_DecimalArrayMinMax(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Random_DecimalArrayMinMax.
     public exitRandom_DecimalArrayMinMax(context: ParserRuleContext): void {
-    Func<object, object, object, object> calculation = (w, x, y) => {
-             int count = int.Parse(w.ToString());
-             int min = int.Parse(x.ToString());
-             int max = int.Parse(y.ToString());
+        const calculation = (w, x, y) => {
+            const count = Number(w);
+            const min = Number(x);
+            const max = Number(y);
 
-        const result = new List<object>(count);
-        for (int i = 0; i < count; i += 1)
-        {
-                 double res = _randomizer.Next(min, max);
+            let result: number[] = [];
+            for (let i = 0; i < count; i += 1) {
+                let res = _randomizer.Next(min, max);
 
-            if ((int)res == min)
-            res += Math.Abs(_randomizer.NextDouble());
-                 else
-                     res += _randomizer.NextDouble();
+                if (res === min)
+                    res += Math.Abs(_randomizer.NextDouble());
+                else
+                    res += _randomizer.NextDouble();
 
-    result.Add(res);
-}
+                result.push(res);
+            }
 
-return result;
-         };
-this.node.Value = CalculationHelper.CalcNumericTri(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+            return result;
+        };
+        this.node.Value = CalculationHelper.CalcNumericTri(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Random_Integer.
     public enterRandom_Integer(context: ParserRuleContext): void {
-    if(this.node)
-    Node.AddChildNode(_randomizer.Next());
-}
+        if (this.node)
+            this.nodeAddChildNode(_randomizer.Next());
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Random_Integer.
-    public exitRandom_Integer(context: ParserRuleContext): void {}
+    public exitRandom_Integer(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Random_IntegerArray.
     public enterRandom_IntegerArray(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Random_IntegerArray.
     public exitRandom_IntegerArray(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => {
-            int count = int.Parse(x.ToString());
+        const calculation = x => {
+            const count = Number(x);
 
-        const result = new List<object>(count);
-        for (int i = 0; i < count; i += 1)
-        result.Add(_randomizer.Next());
+            const result: number[] = [];
+            for (let i = 0; i < count; i += 1)
+                result.push(_randomizer.Next());
 
-        return result;
-    };
+            return result;
+        };
 
-    this.node.Value = CalculationHelper.CalcNumericUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        this.node.Value = CalculationHelper.CalcNumericUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Random_IntegerMinMax.
     public enterRandom_IntegerMinMax(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Random_IntegerMinMax.
     public exitRandom_IntegerMinMax(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x, y) => {
-             int min = int.Parse(x.ToString());
-             int max = int.Parse(y.ToString());
+        const calculation = (x, y) => {
+            const min = Number(x);
+            const max = Number(y);
 
-        return _randomizer.Next(min, max);
-    };
-    this.node.Value = CalculationHelper.CalcNumericBinary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+            return _randomizer.Next(min, max);
+        };
+        this.node.Value = CalculationHelper.CalcNumericBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Random_IntegerArrayMinMax.
     public enterRandom_IntegerArrayMinMax(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Random_IntegerArrayMinMax.
     public exitRandom_IntegerArrayMinMax(context: ParserRuleContext): void {
-    Func<object, object, object, object> calculation = (w, x, y) => {
-            int count = int.Parse(w.ToString());
-            int min = int.Parse(x.ToString());
-            int max = int.Parse(y.ToString());
+        const calculation = (w, x, y) => {
+            const count = Number(w);
+            const min = Number(x);
+            const max = Number(y);
 
-        const result = new List<object>(count);
-        for (int i = 0; i < count; i += 1)
-        result.Add(_randomizer.Next(min, max));
+            const result: number[] = [];
+            for (let i = 0; i < count; i += 1)
+                result.push(_randomizer.Next(min, max));
 
-        return result;
-    };
-    this.node.Value = CalculationHelper.CalcNumericTri(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+            return result;
+        };
+        this.node.Value = CalculationHelper.CalcNumericTri(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Convert_ToArray.
     public enterConvert_ToArray(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_ToArray.
     public exitConvert_ToArray(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
-
-const childValues = this.node.Children.map(child => child.Value);
-
-if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues)) {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
-
-        object value = childValues[0];
-
-if (value is List<object>)
-this.node.Value = value;
-        else if (value is string sValue)
-this.node.Value = sValue.map(x => (object)x.ToString());
-        else if (TypeCheckHelper.IsNumber(value) || TypeCheckHelper.IsBoolean(value) || TypeCheckHelper.IsDateTime(value))
-    this.node.Value = new List < object > { value };
-
-this.node = this.node.Parent; }
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_ToBoolean.
-    public enterConvert_ToBoolean(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_ToBoolean.
-    public exitConvert_ToBoolean(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
-
-const childValues = this.node.Children.map(child => child.Value);
-
-if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues)) {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
-
-        object value = childValues[0];
-
-if (value is List < object > listValue)
-this.node.Value = listValue.Any();
-        else if (value is string sValue)
-this.node.Value = !string.IsNullOrWhiteSpace(sValue);
-        else if (TypeCheckHelper.IsNumber(value))
-    this.node.Value = Convert.ToDecimal(value) > 0;
-else if (TypeCheckHelper.IsBoolean(value))
-    this.node.Value = value;
-
-this.node = this.node.Parent;}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_ToNumber.
-    public enterConvert_ToNumber(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_ToNumber.
-    public exitConvert_ToNumber(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
-
-const childValues = this.node.Children.map(child => child.Value);
-
-if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues)) {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
-
-        object value = childValues[0];
-
-if (value is List<object>)
-this.node.Value = double.NaN;
-        else if (TypeCheckHelper.IsNumber(value))
-    this.node.Value = Convert.ToDecimal(value);
-else if (TypeCheckHelper.IsBoolean(value))
-    this.node.Value = Convert.ToBoolean(value) ? 1 : 0;
-else if (decimal.TryParse(value.ToString(), outconst number))
-    this.node.Value = number;
-
-this.node = this.node.Parent; }
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_ToString.
-    public enterConvert_ToString(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_ToString.
-    public exitConvert_ToString(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
-
-const childValues = this.node.Children.map(child => child.Value);
-
-if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues)) {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
-
-if (childValues[0] is List<object>)
-this.node.Value = null;
-        else
-this.node.Value = childValues[0].ToString();
-
-this.node = this.node.Parent;}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_DegreeToGrad.
-    public enterConvert_DegreeToGrad(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_DegreeToGrad.
-    public exitConvert_DegreeToGrad(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object)MathNet.Numerics.Trig.DegreeToGrad(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_DegreeToRadian.
-    public enterConvert_DegreeToRadian(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_DegreeToRadian.
-    public exitConvert_DegreeToRadian(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object)MathNet.Numerics.Trig.DegreeToRadian(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_GradToDegree.
-    public enterConvert_GradToDegree(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_GradToDegree.
-    public exitConvert_GradToDegree(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object)MathNet.Numerics.Trig.GradToDegree(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_GradToRadian.
-    public enterConvert_GradToRadian(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_GradToRadian.
-    public exitConvert_GradToRadian(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object)MathNet.Numerics.Trig.GradToRadian(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_RadianToDegree.
-    public enterConvert_RadianToDegree(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_RadianToDegree.
-    public exitConvert_RadianToDegree(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object)MathNet.Numerics.Trig.RadianToDegree(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#Convert_RadianToGrad.
-    public enterConvert_RadianToGrad(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#Convert_RadianToGrad.
-    public exitConvert_RadianToGrad(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => (object)MathNet.Numerics.Trig.RadianToGrad(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#DateTime_Expression.
-    public enterDateTime_Expression(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#DateTime_Expression.
-    public exitDateTime_Expression(context: ParserRuleContext): void {
-    SetNodeForDateTimeValue(context, 1);
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#DateTime_DateEntry.
-    public enterDateTime_DateEntry(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#DateTime_DateEntry.
-    public exitDateTime_DateEntry(context: ParserRuleContext): void {
-    SetNodeForDateTimeValue(context, 3);
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#DateTime_DateHour.
-    public enterDateTime_DateHour(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHour.
-    public exitDateTime_DateHour(context: ParserRuleContext): void {
-    SetNodeForDateTimeValue(context, 4);
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#DateTime_DateHourMinute.
-    public enterDateTime_DateHourMinute(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHourMinute.
-    public exitDateTime_DateHourMinute(context: ParserRuleContext): void {
-    SetNodeForDateTimeValue(context, 5);
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#DateTime_DateHourMinuteSeconds.
-    public enterDateTime_DateHourMinuteSeconds(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHourMinuteSeconds.
-    public exitDateTime_DateHourMinuteSeconds(context: ParserRuleContext): void {
-    SetNodeForDateTimeValue(context, 6);
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#DateTime_Full.
-    public enterDateTime_Full(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#DateTime_Full.
-    public exitDateTime_Full(context: ParserRuleContext): void {
-    SetNodeForDateTimeValue(context, 7);
-}
-
-        /// <summary>
-        /// Sets the value of the node and goes up to parent, if some error is done
-        /// </summary>
-        private void SetErrorNodeFor_ExitFactor_DateTimeTerm()
-{
-    this.node.Value = null;
-    this.node = this.node.Parent;
-}
-
-        /// <summary>
-        /// Method to use in order to create the date value.
-        /// Therefore the date methods are very similar, it's everything here inside one method
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="expectedDateParameters"></param>
-        private void SetNodeForDateTimeValue([NotNull] ParserRuleContext context, int expectedDateParameters)
-{
-    if (!errorCollector.CheckHasParams(context, this.node.Children)) {
-        SetErrorNodeFor_ExitFactor_DateTimeTerm();
-        return;
-    }
-
-    if (expectedDateParameters == 1) {
-        this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, x => DateTime.Parse(x, CultureInfo.InvariantCulture), this.node.Children);
-        this.node = this.node.Parent;
-        return;
-    }
-
-    const childValues = this.node.Children.map(child => child.Value);
-
-    if (!errorCollector.CheckParamsCount(context, expectedDateParameters, childValues) ||
-        this.errorCollector.CheckIsNull(context, childValues)) {
-        SetErrorNodeFor_ExitFactor_DateTimeTerm();
-        return;
-    }
-
-    const date = new DateTime();
-    const dateList = new List<DateTime>();
-
-    if (!errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-        SetErrorNodeFor_ExitFactor_DateTimeTerm();
-        return;
-    }
-
-    for (var datePartIndex = 0; datePartIndex < childValues.Length; datePartIndex++) {
-        const datePartList = childValues[datePartIndex] as List<object>;
-        const datePart = -1;
-        if (datePartList is null)
-        datePart = Convert.ToInt32(childValues[datePartIndex]);
-
-        Func < DateTime, int, DateTime > expression;
-
-        switch (datePartIndex) {
-            case 0:
-                expression = (d, v) => d.AddYears(v - d.Year);
-                break;
-
-            case 1:
-                expression = (d, v) => d.AddMonths(v - d.Month);
-                break;
-
-            case 2:
-                expression = (d, v) => d.AddDays(v - d.Day);
-                break;
-
-            case 3:
-                expression = (d, v) => d.AddHours(v - d.Hour);
-                break;
-
-            case 4:
-                expression = (d, v) => d.AddMinutes(v - d.Minute);
-                break;
-
-            case 5:
-                expression = (d, v) => d.AddSeconds(v - d.Second);
-                break;
-
-            case 6:
-                expression = (d, v) => d.AddMilliseconds(v - d.Millisecond);
-                break;
-
-            default:
-                SetErrorNodeFor_ExitFactor_DateTimeTerm();
-                return;
-        }
-
-        const result = GetDateTimeResult(context, date, dateList, datePart, datePartList, expression);
-
-        if (!result.result) {
-            SetErrorNodeFor_ExitFactor_DateTimeTerm();
-            return;
-        }
-
-        date = result.dateResult;
-        dateList = result.dateResultList;
-    }
-
-    this.node.Value = dateList.Any() ? dateList.map(d => (object)d) : (object)date;
-    this.node = this.node.Parent;
-}
-
-private(bool result, DateTime dateResult, List < DateTime > dateResultList) GetDateTimeResult(ParserRuleContext context, DateTime currentDate,
-    List < DateTime > currentDateList, int value, List < object > valueList, Func < DateTime, int, DateTime > expression)
-{
-    if (valueList is null)
-    {
-        if (currentDateList.Any())
-            currentDateList = currentDateList.map(d => expression.Invoke(d, value));
-        else
-            currentDate = expression.Invoke(currentDate, value);
-    }
-            else
-    {
-        if (currentDateList.Count != 0 && currentDateList.Count != valueList.Count) {
-            this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, "Count of arrays are not equal!");
-            return (false, DateTime.MinValue, null);
-        }
-
-        const result = new List<DateTime>();
-        for (int i = 0; i < valueList.Count; i += 1)
-        {
-            const d = currentDateList.Count == 0 ? currentDate : currentDateList[i];
-            result.Add(expression.Invoke(d, Convert.ToInt32(valueList[i])));
-        }
-        currentDateList = result;
-    }
-
-    return (true, currentDate, currentDateList);
-}
-    }
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_Indexing.
-    public enterArraySlicing_Indexing(context: ParserRuleContext): void {}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_Indexing.
-    public exitArraySlicing_Indexing(context: ParserRuleContext): void {
-    _lastArraySlicingType = ArraySlicingType.Indexing;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_Slicing.
-    public enterArraySlicing_Slicing(context: ParserRuleContext): void {}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_Slicing.
-    public exitArraySlicing_Slicing(context: ParserRuleContext): void {
-    _lastArraySlicingType = ArraySlicingType.Slicing;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_StepSlicing.
-    public enterArraySlicing_StepSlicing(context: ParserRuleContext): void {}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StepSlicing.
-    public exitArraySlicing_StepSlicing(context: ParserRuleContext): void {
-    _lastArraySlicingType = ArraySlicingType.StepSlicing;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_StartSlicing.
-    public enterArraySlicing_StartSlicing(context: ParserRuleContext): void {}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StartSlicing.
-    public exitArraySlicing_StartSlicing(context: ParserRuleContext): void {
-    _lastArraySlicingType = ArraySlicingType.StartSlicing;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_StartStepSlicing.
-    public enterArraySlicing_StartStepSlicing(context: ParserRuleContext): void {}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StartStepSlicing.
-    public exitArraySlicing_StartStepSlicing(context: ParserRuleContext): void {
-    _lastArraySlicingType = ArraySlicingType.StartStepSlicing;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_EndSlicing.
-    public enterArraySlicing_EndSlicing(context: ParserRuleContext): void {}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_EndSlicing.
-    public exitArraySlicing_EndSlicing(context: ParserRuleContext): void {
-    _lastArraySlicingType = ArraySlicingType.EndSlicing;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_EndStepSlicing.
-    public enterArraySlicing_EndStepSlicing(context: ParserRuleContext): void {}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_EndStepSlicing.
-    public exitArraySlicing_EndStepSlicing(context: ParserRuleContext): void {
-    _lastArraySlicingType = ArraySlicingType.EndStepSlicing;
-}
-
-
-
-    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_AllStepSlicing.
-    public enterArraySlicing_AllStepSlicing(context: ParserRuleContext): void {}
-
-
-    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_AllStepSlicing.
-    public exitArraySlicing_AllStepSlicing(context: ParserRuleContext): void {
-    _lastArraySlicingType = ArraySlicingType.AllStepSlicing;
-}
-
-        private void ArraySlicing([NotNull] ParserRuleContext context, ArraySlicingType arraySlicingType)
-{
-    if (!errorCollector.CheckHasParams(context, this.node.Children)) {
-        this.node.Value = null;
-        this.node = this.node.Parent;
-        return;
-    }
-
-            int parametersCount = arraySlicingType.GetParameterCount();
-
-    const childValues = this.node.Children.GetRange(1, parametersCount - 1).map(child => child.Value);
-
-    if (!errorCollector.CheckParamsCount(context, parametersCount - 1, childValues) ||
-        this.errorCollector.CheckIsNull(context, childValues) ||
-        !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-        this.node.Value = null;
-        this.node = this.node.Parent;
-        return;
-    }
-
-    const array = this.node.Children[0].Value as List<object>;
-    if (array is null)
-    {
-                string text = this.node.Children[0].Value as string;
-        if (string.IsNullOrWhiteSpace(text)) {
-            this.errorCollector.AddError(context, ErrorCode.FirstIsNotArray, "The first parameter musst be an array or string!");
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
         }
 
-        array = new List<object>(Array.ConvertAll(text.ToCharArray(), x => (object)x));
-    }
+        const childValues = this.node.Children.map(child => child.Value);
 
-    switch (arraySlicingType) {
-        case ArraySlicingType.Indexing:
-            this.node.Value = SliceArray(context, array, childValues[0]);
-            break;
-
-        case ArraySlicingType.Slicing:
-            this.node.Value = SliceArrayFromTo(context, array, childValues[0], childValues[1]);
-            break;
-
-        case ArraySlicingType.StepSlicing:
-
-            this.node.Value = SliceArrayFromToStep(context, array, childValues[0], childValues[1], childValues[2]);
-            break;
-
-        case ArraySlicingType.StartSlicing:
-            this.node.Value = SliceArrayFromTo(context, array, childValues[0], array.Count);
-            break;
-
-        case ArraySlicingType.StartStepSlicing:
-            this.node.Value = SliceArrayFromToStep(context, array, childValues[0], array.Count, childValues[1]);
-            break;
-
-        case ArraySlicingType.EndSlicing:
-            this.node.Value = SliceArrayFromTo(context, array, 0, childValues[0]);
-            break;
-
-        case ArraySlicingType.EndStepSlicing:
-            this.node.Value = SliceArrayFromToStep(context, array, 0, childValues[0], childValues[1]);
-            break;
-
-        case ArraySlicingType.AllStepSlicing:
-            this.node.Value = SliceArrayFromToStep(context, array, 0, array.Count, childValues[0]);
-            break;
-    }
-
-    this.node = this.node.Parent;
-}
-
-        private object SliceArray(ParserRuleContext context, List < object > array, object indexObj)
-{
-    const indexList = indexObj as List<object>;
-
-    if (indexList is null)
-    {
-                int index = Convert.ToInt32(indexObj);
-        if (index < 0)
-            index = array.Count + index;
-
-        if (index >= array.Count) {
-            this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be higher or equal to the length of the array!");
-            return null;
-        }
-        else if (index < 0) {
-            this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be less than 0!");
-            return null;
+        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
         }
 
-        return array[index];
+        const value = childValues[0];
+
+        if (TypeCheckHelper.IsArray(value))
+            this.node.Value = value;
+        else if (TypeCheckHelper.IsString(value))
+            this.node.Value = value.map(x => x.ToString());
+        else if (TypeCheckHelper.IsNumber(value) || TypeCheckHelper.IsBoolean(value) || TypeCheckHelper.IsDateTime(value))
+            this.node.Value = [value];
+
+        this.node = this.node.Parent;
     }
 
-    return indexList.map(x => {
-                int index = Convert.ToInt32(x);
-        if (index < 0)
-            index = array.Count + index;
 
-        if (index >= array.Count) {
-            this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be higher or equal to the length of the array!");
-            return null;
+
+    // Enter a parse tree produced by EveryGrammarParser#Convert_ToBoolean.
+    public enterConvert_ToBoolean(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_ToBoolean.
+    public exitConvert_ToBoolean(context: ParserRuleContext): void {
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
         }
-        else if (index < 0) {
-            this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be less than 0!");
-            return null;
+
+        const childValues = this.node.Children.map(child => child.Value);
+
+        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
         }
 
-        return array[index];
-    });
-}
+        const value = childValues[0];
 
-        private object SliceArrayFromTo(ParserRuleContext context, List < object > array, object indexStartObj, object indexEndObj)
-{
-    const indexStartList = indexStartObj as List<object>;
-    const indexEndList = indexEndObj as List<object>;
+        if (TypeCheckHelper.IsArray(value))
+            this.node.Value = listValue.Any();
+        else if (TypeCheckHelper.IsString(value))
+            this.node.Value = value.trim() !== "";
+        else if (TypeCheckHelper.IsNumber(value))
+            this.node.Value = Number(value) > 0;
+        else if (TypeCheckHelper.IsBoolean(value))
+            this.node.Value = value;
 
-    if (indexStartList is null && indexEndList is null)
-    {
-                int indexStart = Convert.ToInt32(indexStartObj);
-                int indexEnd = Convert.ToInt32(indexEndObj);
-        return GetFromTo(context, array, indexStart, indexEnd);
+        this.node = this.node.Parent;
     }
-            else if (indexStartList is null)
-    {
-                int indexStart = Convert.ToInt32(indexStartObj);
-        return indexEndList.map(indexEndX => (object)GetFromTo(context, array, indexStart, Convert.ToInt32(indexEndX)));
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#Convert_ToNumber.
+    public enterConvert_ToNumber(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
     }
-            else if (indexEndList is null)
-    {
-                int indexEnd = Convert.ToInt32(indexEndObj);
-        return indexStartList.map(indexStartX => (object)GetFromTo(context, array, Convert.ToInt32(indexStartX), indexEnd));
-    }
-            else if (indexStartList.Count == indexEndList.Count) {
-        const result = new List<object>(indexEndList.Count);
-        for (int i = 0; i < indexEndList.Count; i += 1)
-        {
-                    int indexStart = Convert.ToInt32(indexStartList[i]);
-                    int indexEnd = Convert.ToInt32(indexEndList[i]);
-            result.Add(GetFromTo(context, array, indexStart, indexEnd));
+
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_ToNumber.
+    public exitConvert_ToNumber(context: ParserRuleContext): void {
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
         }
-        return result;
+
+        const childValues = this.node.Children.map(child => child.Value);
+
+        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const value = childValues[0];
+
+        if (TypeCheckHelper.IsArray(value))
+            this.node.Value = Number("X");
+        else if (TypeCheckHelper.IsNumber(value))
+            this.node.Value = value;
+        else if (TypeCheckHelper.IsBoolean(value))
+            this.node.Value = value ? 1 : 0;
+
+        this.node = this.node.Parent;
     }
 
-    this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, $"Array count must be equal: IndexStart Array Count {indexStartList.Count} IndexEnd Array Count {indexEndList.Count}");
 
-    return null;
-}
 
-        private object SliceArrayFromToStep(ParserRuleContext context, List < object > array, object indexStartObj, object indexEndObj, object stepObj)
-{
-    const indexStartList = indexStartObj as List<object>;
-    const indexEndList = indexEndObj as List<object>;
-    const stepList = stepObj as List<object>;
+    // Enter a parse tree produced by EveryGrammarParser#Convert_ToString.
+    public enterConvert_ToString(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
-    if (indexStartList is null && indexEndList is null && stepList is null)
-    {
-                int indexStart = Convert.ToInt32(indexStartObj);
-                int indexEnd = Convert.ToInt32(indexEndObj);
-                int step = Convert.ToInt32(stepObj);
-        return GetFromTo(context, array, indexStart, indexEnd, step);
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_ToString.
+    public exitConvert_ToString(context: ParserRuleContext): void {
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const childValues = this.node.Children.map(child => child.Value);
+
+        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        if (TypeCheckHelper.IsArray(childValues[0]))
+            this.node.Value = null;
+        else
+            this.node.Value = childValues[0].ToString();
+
+        this.node = this.node.Parent;
     }
-            else if (indexStartList is null && indexEndList is null)
-    {
-                int indexStart = Convert.ToInt32(indexStartObj);
-                int indexEnd = Convert.ToInt32(indexEndObj);
-        return stepList.map(stepX => (object)GetFromTo(context, array, indexStart, indexEnd, Convert.ToInt32(stepX)));
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#Convert_DegreeToGrad.
+    public enterConvert_DegreeToGrad(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
     }
-            else if (indexStartList is null && stepList is null)
-    {
-                int indexStart = Convert.ToInt32(indexStartObj);
-                int step = Convert.ToInt32(stepObj);
-        return indexEndList.map(indexEndX => (object)GetFromTo(context, array, indexStart, Convert.ToInt32(indexEndX), step));
+
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_DegreeToGrad.
+    public exitConvert_DegreeToGrad(context: ParserRuleContext): void {
+        const calculation = x => MathNet.Numerics.Trig.DegreeToGrad(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
     }
-            else if (indexEndList is null && stepList is null)
-    {
-                int indexEnd = Convert.ToInt32(indexEndObj);
-                int step = Convert.ToInt32(stepObj);
-        return indexStartList.map(indexStartX => (object)GetFromTo(context, array, Convert.ToInt32(indexStartX), indexEnd, step));
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#Convert_DegreeToRadian.
+    public enterConvert_DegreeToRadian(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
     }
-            else if (indexStartList is null)
-    {
-        if (indexEndList.Count == stepList.Count) {
-                    int indexStart = Convert.ToInt32(indexStartObj);
+
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_DegreeToRadian.
+    public exitConvert_DegreeToRadian(context: ParserRuleContext): void {
+        const calculation = x => MathNet.Numerics.Trig.DegreeToRadian(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#Convert_GradToDegree.
+    public enterConvert_GradToDegree(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_GradToDegree.
+    public exitConvert_GradToDegree(context: ParserRuleContext): void {
+        const calculation = x => MathNet.Numerics.Trig.GradToDegree(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#Convert_GradToRadian.
+    public enterConvert_GradToRadian(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_GradToRadian.
+    public exitConvert_GradToRadian(context: ParserRuleContext): void {
+        const calculation = x => MathNet.Numerics.Trig.GradToRadian(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#Convert_RadianToDegree.
+    public enterConvert_RadianToDegree(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_RadianToDegree.
+    public exitConvert_RadianToDegree(context: ParserRuleContext): void {
+        const calculation = x => MathNet.Numerics.Trig.RadianToDegree(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#Convert_RadianToGrad.
+    public enterConvert_RadianToGrad(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#Convert_RadianToGrad.
+    public exitConvert_RadianToGrad(context: ParserRuleContext): void {
+        const calculation = x => MathNet.Numerics.Trig.RadianToGrad(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#DateTime_Expression.
+    public enterDateTime_Expression(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#DateTime_Expression.
+    public exitDateTime_Expression(context: ParserRuleContext): void {
+        SetNodeForDateTimeValue(context, 1);
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#DateTime_DateEntry.
+    public enterDateTime_DateEntry(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#DateTime_DateEntry.
+    public exitDateTime_DateEntry(context: ParserRuleContext): void {
+        SetNodeForDateTimeValue(context, 3);
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#DateTime_DateHour.
+    public enterDateTime_DateHour(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHour.
+    public exitDateTime_DateHour(context: ParserRuleContext): void {
+        SetNodeForDateTimeValue(context, 4);
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#DateTime_DateHourMinute.
+    public enterDateTime_DateHourMinute(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHourMinute.
+    public exitDateTime_DateHourMinute(context: ParserRuleContext): void {
+        SetNodeForDateTimeValue(context, 5);
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#DateTime_DateHourMinuteSeconds.
+    public enterDateTime_DateHourMinuteSeconds(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHourMinuteSeconds.
+    public exitDateTime_DateHourMinuteSeconds(context: ParserRuleContext): void {
+        SetNodeForDateTimeValue(context, 6);
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#DateTime_Full.
+    public enterDateTime_Full(context: ParserRuleContext): void {
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#DateTime_Full.
+    public exitDateTime_Full(context: ParserRuleContext): void {
+        SetNodeForDateTimeValue(context, 7);
+    }
+
+    /// <summary>
+    /// Sets the value of the node and goes up to parent, if some error is done
+    /// </summary>
+    private SetErrorNodeFor_ExitFactor_DateTimeTerm() {
+        this.node.Value = null;
+        this.node = this.node.Parent;
+    }
+
+    /// <summary>
+    /// Method to use in order to create the date value.
+    /// Therefore the date methods are very similar, it's everything here inside one method
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="expectedDateParameters"></param>
+    private SetNodeForDateTimeValue(context: ParserRuleContext, expectedDateParameters: number) {
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            SetErrorNodeFor_ExitFactor_DateTimeTerm();
+            return;
+        }
+
+        if (expectedDateParameters == 1) {
+            this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, x => DateTime.Parse(x, CultureInfo.InvariantCulture), this.node.Children);
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const childValues = this.node.Children.map(child => child.Value);
+
+        if (!errorCollector.CheckParamsCount(context, expectedDateParameters, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues)) {
+            SetErrorNodeFor_ExitFactor_DateTimeTerm();
+            return;
+        }
+
+        const date = new new Date();
+        const dateList: Date[] = [];
+
+        if (!errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            SetErrorNodeFor_ExitFactor_DateTimeTerm();
+            return;
+        }
+
+        for (var datePartIndex = 0; datePartIndex < childValues.Length; datePartIndex++) {
+            const datePartList = childValues[datePartIndex] as List<object>;
+            const datePart = -1;
+            if (!datePartList)
+                datePart = Number(childValues[datePartIndex]);
+
+            let expression = null;
+
+            switch (datePartIndex) {
+                case 0:
+                    expression = (d: Date, v: Number) => { d.setFullYear(v); return d; };
+                    break;
+
+                case 1:
+                    expression = (d: Date, v: Number) => { d.setMonth(v); return d; };
+                    break;
+
+                case 2:
+                    expression = (d: Date, v: Number) => { d.setDate(v); return d; };
+                    break;
+
+                case 3:
+                    expression = (d: Date, v: Number) => { d.setHours(v); return d; };
+                    break;
+
+                case 4:
+                    expression = (d: Date, v: Number) => { d.setMinutes(v); return d; };
+                    break;
+
+                case 5:
+                    expression = (d: Date, v: Number) => { d.setSeconds(v); return d; };
+                    break;
+
+                case 6:
+                    expression = (d: Date, v: Number) => { d.setMilliseconds(v); return d; };
+                    break;
+
+                default:
+                    SetErrorNodeFor_ExitFactor_DateTimeTerm();
+                    return;
+            }
+
+            const result = GetDateTimeResult(context, date, dateList, datePart, datePartList, expression);
+
+            if (!result.result) {
+                SetErrorNodeFor_ExitFactor_DateTimeTerm();
+                return;
+            }
+
+            date = result.dateResult;
+            dateList = result.dateResultList;
+        }
+
+        this.node.Value = dateList.length ? dateList : date;
+        this.node = this.node.Parent;
+    }
+
+    private GetDateTimeResult(context: ParserRuleContext, currentDate: Date, currentDateList: Date[], value: number, valueList: any[], expression: (value1: Date, value2: number) => Date) {
+        if (!valueList) {
+            if (currentDateList.Any())
+                currentDateList = currentDateList.map(d => expression.Invoke(d, value));
+            else
+                currentDate = expression.Invoke(currentDate, value);
+        }
+        else {
+            if (currentDateList.Count != 0 && currentDateList.Count != valueList.Count) {
+                this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, "Count of arrays are not equal!");
+                return (false, DateTime.MinValue, null);
+            }
+
+            const result: Date[] = [];
+            for (let i = 0; i < valueList.Count; i += 1) {
+                const d = currentDateList.length === 0 ? currentDate : currentDateList[i];
+                result.push(expression.Invoke(d, Number(valueList[i])));
+            }
+            currentDateList = result;
+        }
+
+        return { result: true, dateResult: currentDate, dateResultList: currentDateList };
+    }
+
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_Indexing.
+    public enterArraySlicing_Indexing(context: ParserRuleContext): void { }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_Indexing.
+    public exitArraySlicing_Indexing(context: ParserRuleContext): void {
+        _lastArraySlicingType = ArraySlicingType.Indexing;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_Slicing.
+    public enterArraySlicing_Slicing(context: ParserRuleContext): void { }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_Slicing.
+    public exitArraySlicing_Slicing(context: ParserRuleContext): void {
+        _lastArraySlicingType = ArraySlicingType.Slicing;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_StepSlicing.
+    public enterArraySlicing_StepSlicing(context: ParserRuleContext): void { }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StepSlicing.
+    public exitArraySlicing_StepSlicing(context: ParserRuleContext): void {
+        _lastArraySlicingType = ArraySlicingType.StepSlicing;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_StartSlicing.
+    public enterArraySlicing_StartSlicing(context: ParserRuleContext): void { }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StartSlicing.
+    public exitArraySlicing_StartSlicing(context: ParserRuleContext): void {
+        _lastArraySlicingType = ArraySlicingType.StartSlicing;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_StartStepSlicing.
+    public enterArraySlicing_StartStepSlicing(context: ParserRuleContext): void { }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StartStepSlicing.
+    public exitArraySlicing_StartStepSlicing(context: ParserRuleContext): void {
+        _lastArraySlicingType = ArraySlicingType.StartStepSlicing;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_EndSlicing.
+    public enterArraySlicing_EndSlicing(context: ParserRuleContext): void { }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_EndSlicing.
+    public exitArraySlicing_EndSlicing(context: ParserRuleContext): void {
+        _lastArraySlicingType = ArraySlicingType.EndSlicing;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_EndStepSlicing.
+    public enterArraySlicing_EndStepSlicing(context: ParserRuleContext): void { }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_EndStepSlicing.
+    public exitArraySlicing_EndStepSlicing(context: ParserRuleContext): void {
+        _lastArraySlicingType = ArraySlicingType.EndStepSlicing;
+    }
+
+
+
+    // Enter a parse tree produced by EveryGrammarParser#ArraySlicing_AllStepSlicing.
+    public enterArraySlicing_AllStepSlicing(context: ParserRuleContext): void { }
+
+
+    // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_AllStepSlicing.
+    public exitArraySlicing_AllStepSlicing(context: ParserRuleContext): void {
+        _lastArraySlicingType = ArraySlicingType.AllStepSlicing;
+    }
+
+    private ArraySlicing(context: ParserRuleContext, arraySlicingType: ArraySlicingType): void {
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const parametersCount = ArraySlicingTypeExtension.GetParameterCount(arraySlicingType);
+
+        const childValues = this.node.Children.GetRange(1, parametersCount - 1).map(child => child.Value);
+
+        if (!errorCollector.CheckParamsCount(context, parametersCount - 1, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues) ||
+            !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const array: any[] = this.node.Children[0].Value;
+        if (!array) {
+            const text: string = this.node.Children[0].Value;
+            if (text.trim() === "") {
+                this.errorCollector.AddError(context, ErrorCode.FirstIsNotArray, "The first parameter musst be an array or string!");
+                this.node.Value = null;
+                this.node = this.node.Parent;
+                return;
+            }
+
+            array = text.map(x => x);
+        }
+
+        switch (arraySlicingType) {
+            case ArraySlicingType.Indexing:
+                this.node.Value = SliceArray(context, array, childValues[0]);
+                break;
+
+            case ArraySlicingType.Slicing:
+                this.node.Value = SliceArrayFromTo(context, array, childValues[0], childValues[1]);
+                break;
+
+            case ArraySlicingType.StepSlicing:
+
+                this.node.Value = SliceArrayFromToStep(context, array, childValues[0], childValues[1], childValues[2]);
+                break;
+
+            case ArraySlicingType.StartSlicing:
+                this.node.Value = SliceArrayFromTo(context, array, childValues[0], array.Count);
+                break;
+
+            case ArraySlicingType.StartStepSlicing:
+                this.node.Value = SliceArrayFromToStep(context, array, childValues[0], array.Count, childValues[1]);
+                break;
+
+            case ArraySlicingType.EndSlicing:
+                this.node.Value = SliceArrayFromTo(context, array, 0, childValues[0]);
+                break;
+
+            case ArraySlicingType.EndStepSlicing:
+                this.node.Value = SliceArrayFromToStep(context, array, 0, childValues[0], childValues[1]);
+                break;
+
+            case ArraySlicingType.AllStepSlicing:
+                this.node.Value = SliceArrayFromToStep(context, array, 0, array.Count, childValues[0]);
+                break;
+        }
+
+        this.node = this.node.Parent;
+    }
+
+    private SliceArray(context: ParserRuleContext, array: any[], indexObj: any): any {
+        const indexList = indexObj as List<object>;
+
+        if (!indexList) {
+            let index: number = Number(indexObj);
+            if (index < 0)
+                index = array.Count + index;
+
+            if (index >= array.Count) {
+                this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be higher or equal to the length of the array!");
+                return null;
+            }
+            else if (index < 0) {
+                this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be less than 0!");
+                return null;
+            }
+
+            return array[index];
+        }
+
+        return indexList.map(x => {
+            let index: number = Number(indexObj);
+            if (index < 0)
+                index = array.Count + index;
+
+            if (index >= array.Count) {
+                this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be higher or equal to the length of the array!");
+                return null;
+            }
+            else if (index < 0) {
+                this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be less than 0!");
+                return null;
+            }
+
+            return array[index];
+        });
+    }
+
+    private SliceArrayFromTo(context: ParserRuleContext, array: any[], indexStartObj: any, indexEndObj: any): any {
+
+        if (!TypeCheckHelper.IsArrayOfNumber(indexStartObj) && !TypeCheckHelper.IsArrayOfNumber(indexEndObj)) {
+            const indexStart = Number(indexStartObj);
+            const indexEnd = Number(indexEndObj);
+            return GetFromTo(context, array, indexStart, indexEnd);
+        }
+        else if (!TypeCheckHelper.IsArrayOfNumber(indexStartObj)) {
+            const indexStart = Number(indexStartObj);
+            return indexEndList.map(indexEndX => GetFromTo(context, array, indexStart, Number(indexEndX)));
+        }
+        else if (!TypeCheckHelper.IsArrayOfNumber(indexEndObj)) {
+            const indexEnd = Number(indexEndObj);
+            return indexStartList.map(indexStartX => GetFromTo(context, array, Number(indexStartX), indexEnd));
+        }
+        else if (indexStartList.length == indexEndObj.length) {
             const result = new List<object>(indexEndList.Count);
-            for (int i = 0; i < indexEndList.Count; i += 1)
-            {
-                        int indexEnd = Convert.ToInt32(indexEndList[i]);
-                        int step = Convert.ToInt32(stepList[i]);
-                result.Add((object)GetFromTo(context, array, indexStart, indexEnd, step));
+            for (let i = 0; i < indexEndList.Count; i += 1) {
+                const indexStart = Number(indexStartList[i]);
+                const indexEnd = Number(indexEndList[i]);
+                result.push(GetFromTo(context, array, indexStart, indexEnd));
             }
             return result;
         }
 
-        this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, $"Array count must be equal: IndexEnd Array Count {indexEndList.Count} Step Array Count {stepList.Count}");
+        this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, `Array count must be equal: IndexStart Array Count ${indexStartList.Count} IndexEnd Array Count ${indexEndList.length}`);
+
+        return null;
     }
-            else if (indexEndList is null)
-    {
-        if (indexStartList.Count == stepList.Count) {
-                    int indexEnd = Convert.ToInt32(indexEndObj);
+
+    private SliceArrayFromToStep(context: ParserRuleContext, array: any[], indexStartObj: any, indexEndObj: any, stepObj: any): any {
+        if (!TypeCheckHelper.IsArrayOfNumber(indexStartObj) && !TypeCheckHelper.IsArrayOfNumber(indexEndObj) && !TypeCheckHelper.IsArrayOfNumber(stepObj)) {
+            const indexStart = Number(indexStartObj);
+            const indexEnd = Number(indexEndObj);
+            const step = Number(stepObj);
+            return GetFromTo(context, array, indexStart, indexEnd, step);
+        }
+        else if (!TypeCheckHelper.IsArrayOfNumber(indexStartObj) && !TypeCheckHelper.IsArrayOfNumber(indexEndObj)) {
+            const indexStart = Number(indexStartObj);
+            const indexEnd = Number(indexEndObj);
+            return stepList.map(stepX => GetFromTo(context, array, indexStart, indexEnd, Number(stepX)));
+        }
+        else if (!TypeCheckHelper.IsArrayOfNumber(indexStartObj) && !TypeCheckHelper.IsArrayOfNumber(stepObj)) {
+            const indexStart = Number(indexStartObj);
+            const step = Number(stepObj);
+            return indexEndList.map(indexEndX => GetFromTo(context, array, indexStart, Number(indexEndX), step));
+        }
+        else if (!TypeCheckHelper.IsArrayOfNumber(indexEndObj) && !TypeCheckHelper.IsArrayOfNumber(stepObj)) {
+            const indexEnd = Number(indexEndObj);
+            const step = Number(stepObj);
+            return indexStartList.map(indexStartX => GetFromTo(context, array, Number(indexStartX), indexEnd, step));
+        }
+        else if (!TypeCheckHelper.IsArrayOfNumber(indexStartObj)) {
+            if (indexEndObj.length === stepObj.length) {
+                const indexStart = Number(indexStartObj);
+                const result: any[] = [];
+                for (let i = 0; i < indexEndList.Count; i += 1) {
+                    const indexEnd = Number(indexEndList[i]);
+                    const step = Number(stepList[i]);
+                    result.push(GetFromTo(context, array, indexStart, indexEnd, step));
+                }
+                return result;
+            }
+
+            this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, `Array count must be equal: IndexEnd Array Count ${indexEndList.Count} Step Array Count ${stepList.Count}`);
+        }
+        else if (!TypeCheckHelper.IsArrayOfNumber(indexEndObj)) {
+            if (indexStartList.length === stepList.length) {
+                const indexEnd = Number(indexEndObj);
+                const result = new List<object>(indexStartList.Count);
+                for (let i = 0; i < indexStartList.Count; i += 1) {
+                    const indexStart = Number(indexStartList[i]);
+                    const step = Number(stepList[i]);
+                    result.push(GetFromTo(context, array, indexStart, indexEnd, step));
+                }
+                return result;
+            }
+
+            this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, `Array count must be equal: IndexStart Array Count ${indexStartList.Count} Step Array Count ${stepList.Count}`);
+        }
+        else if (!TypeCheckHelper.IsArrayOfNumber(stepObj)) {
+            if (indexStartList.length === indexEndList.length) {
+                const step = Number(stepObj);
+                const result = new List<object>(indexStartList.Count);
+                for (let i = 0; i < indexStartList.Count; i += 1) {
+                    const indexStart = Number(indexStartList[i]);
+                    const indexEnd = Number(indexEndList[i]);
+                    result.push(GetFromTo(context, array, indexStart, indexEnd, step));
+                }
+                return result;
+            }
+
+            this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, `Array count must be equal: IndexStart Array Count ${indexStartList.Count} IndexEnd Array Count ${indexEndList.Count}`);
+        }
+        else if (indexStartList.length === indexEndList.length && indexStartList.length === stepList.length) {
             const result = new List<object>(indexStartList.Count);
-            for (int i = 0; i < indexStartList.Count; i += 1)
-            {
-                        int indexStart = Convert.ToInt32(indexStartList[i]);
-                        int step = Convert.ToInt32(stepList[i]);
-                result.Add((object)GetFromTo(context, array, indexStart, indexEnd, step));
+            for (let i = 0; i < indexStartList.Count; i += 1) {
+                const indexStart = Number(indexStartList[i]);
+                const indexEnd = Number(indexEndList[i]);
+                const step = Number(stepList[i]);
+                result.push(GetFromTo(context, array, indexStart, indexEnd, step));
             }
             return result;
         }
+        else
+            this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, `Array count must be equal: IndexStart Array Count ${indexStartList.Count} IndexEnd Array Count ${indexEndList.Count} Step Array Count ${stepList.Count}`);
 
-        this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, $"Array count must be equal: IndexStart Array Count {indexStartList.Count} Step Array Count {stepList.Count}");
+        return null;
     }
-            else if (stepList is null)
-    {
-        if (indexStartList.Count == indexEndList.Count) {
-                    int step = Convert.ToInt32(stepObj);
-            const result = new List<object>(indexStartList.Count);
-            for (int i = 0; i < indexStartList.Count; i += 1)
-            {
-                        int indexStart = Convert.ToInt32(indexStartList[i]);
-                        int indexEnd = Convert.ToInt32(indexEndList[i]);
-                result.Add((object)GetFromTo(context, array, indexStart, indexEnd, step));
+
+    private GetFromTo(context: ParserRuleContext, list: any[], start: number, end: number, step: number = 1): any[] {
+        if (step < 1 || step >= list.Count) {
+            this.errorCollector.AddError(context, ErrorCode.StepNotCorrect, "The step can't be less 1 and higher then length of array!");
+            return null;
+        }
+
+        const startIndex = start < 0 ? list.length + start : start;
+        const endIndex = end < 0 ? list.length + end : end;
+
+        if (((start < 0 && end < 0) || (start >= 0 && end >= 0))) {
+            if (start >= end) {
+                this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex can't be higher or equal to the endIndex!");
+                return null;
             }
-            return result;
+        }
+        else if (start >= 0 && end < 0) {
+            if (start >= endIndex) {
+                this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex can't be higher or equal to the endIndex!");
+                return null;
+            }
+        }
+        else if (start < 0 && end >= 0) {
+            if (startIndex >= end) {
+                this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex can't be higher or equal to the endIndex!");
+                return null;
+            }
         }
 
-        this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, $"Array count must be equal: IndexStart Array Count {indexStartList.Count} IndexEnd Array Count {indexEndList.Count}");
-    }
-            else if (indexStartList.Count == indexEndList.Count && indexStartList.Count == stepList.Count) {
-        const result = new List<object>(indexStartList.Count);
-        for (int i = 0; i < indexStartList.Count; i += 1)
-        {
-                    int indexStart = Convert.ToInt32(indexStartList[i]);
-                    int indexEnd = Convert.ToInt32(indexEndList[i]);
-                    int step = Convert.ToInt32(stepList[i]);
-            result.Add((object)GetFromTo(context, array, indexStart, indexEnd, step));
+        if (startIndex >= list.Count || endIndex > list.Count) {
+            this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex/endIndex can't be higher to the length of the array!");
+            return null;
         }
+        else if (startIndex < 0 || endIndex < 0) {
+            this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex/endIndex can't be less than 0!");
+            return null;
+        }
+
+        const result = new List<object>();
+
+        for (let i = startIndex; i < endIndex; i += step)
+            result.push(list[i]);
+
         return result;
     }
-    else
-        this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, $"Array count must be equal: IndexStart Array Count {indexStartList.Count} IndexEnd Array Count {indexEndList.Count} Step Array Count {stepList.Count}");
 
-    return null;
-}
-
-        private List < object > GetFromTo(ParserRuleContext context, List < object > list, int start, int end, int step = 1)
-{
-    if (step < 1 || step >= list.Count) {
-        this.errorCollector.AddError(context, ErrorCode.StepNotCorrect, "The step can't be less 1 and higher then length of array!");
-        return null;
-    }
-
-    const startIndex = start < 0 ? list.Count + start : start;
-    const endIndex = end < 0 ? list.Count + end : end;
-
-    if (((start < 0 && end < 0) || (start >= 0 && end >= 0))) {
-        if (start >= end) {
-            this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex can't be higher or equal to the endIndex!");
-            return null;
-        }
-    }
-    else if (start >= 0 && end < 0) {
-        if (start >= endIndex) {
-            this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex can't be higher or equal to the endIndex!");
-            return null;
-        }
-    }
-    else if (start < 0 && end >= 0) {
-        if (startIndex >= end) {
-            this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex can't be higher or equal to the endIndex!");
-            return null;
-        }
-    }
-
-    if (startIndex >= list.Count || endIndex > list.Count) {
-        this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex/endIndex can't be higher to the length of the array!");
-        return null;
-    }
-    else if (startIndex < 0 || endIndex < 0) {
-        this.errorCollector.AddError(context, ErrorCode.StartEndIndexNotCorrect, "The startIndex/endIndex can't be less than 0!");
-        return null;
-    }
-
-    const result = new List<object>();
-
-    for (int i = startIndex; i < endIndex; i += step)
-    result.Add(list[i]);
-
-    result.TrimExcess();
-    return result;
-}
-    }
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_IsArray.
     public enterCheckFunction_IsArray(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsArray.
     public exitCheckFunction_IsArray(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => x is List<object>;
+        const calculation = x => TypeCheckHelper.IsArray(x);
         this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_IsBoolean.
     public enterCheckFunction_IsBoolean(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsBoolean.
     public exitCheckFunction_IsBoolean(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => TypeCheckHelper.IsBoolean(x);
-    this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => TypeCheckHelper.IsBoolean(x);
+        this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_IsDateTime.
     public enterCheckFunction_IsDateTime(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsDateTime.
     public exitCheckFunction_IsDateTime(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => x is DateTime;
-    this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => TypeCheckHelper.IsDateTime(x);
+        this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_IsNull.
     public enterCheckFunction_IsNull(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsNull.
     public exitCheckFunction_IsNull(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => x is null;
-    this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => x == null;
+        this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_IsNumber.
     public enterCheckFunction_IsNumber(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsNumber.
     public exitCheckFunction_IsNumber(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => TypeCheckHelper.IsNumber(x);
-    this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => TypeCheckHelper.IsNumber(x);
+        this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_IsString.
     public enterCheckFunction_IsString(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsString.
     public exitCheckFunction_IsString(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => x is string;
-    this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => TypeCheckHelper.IsString(x);
+        this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_IsWhitespace.
     public enterCheckFunction_IsWhitespace(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsWhitespace.
     public exitCheckFunction_IsWhitespace(context: ParserRuleContext): void {
-    Func<string, object> stringCalculation = x => !(x is null) && string.IsNullOrWhiteSpace(x);
-this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
-this.node = this.node.Parent; }
+        const stringCalculation = x => x.trim() === "";
+        this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_HasAny.
     public enterCheckFunction_HasAny(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_HasAny.
     public exitCheckFunction_HasAny(context: ParserRuleContext): void {
-    Func<List< object >, object > listCalculation = list => list.Any();
-Func < string, object > stringCalculation = x => x.Any();
-this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent;}
+        const listCalculation = list => list.length > 0;
+        const stringCalculation = x => x.Any();
+        this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#CheckFunction_HasDuplicates.
     public enterCheckFunction_HasDuplicates(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_HasDuplicates.
     public exitCheckFunction_HasDuplicates(context: ParserRuleContext): void {
-    Func<List< object >, object > listCalculation = list => list.Distinct().Count() < list.Count;
-Func < string, object > stringCalculation = x => x.Distinct().Count() < x.Length;
-this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent; }
+        const listCalculation = list => list.filter((value, index, self) => self.indexOf(value) === index).length < list.length;
+        const stringCalculation = x => list.filter((value, index, self) => self.indexOf(value) === index).length < x.length;
+        this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Concat.
     public enterFunction_Concat(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Concat.
     public exitFunction_Concat(context: ParserRuleContext): void {
-    Func<string, string, object> stringCalculation = (x, y) => x + y;
-    Func<List< object >, List < object >, object > listCalculation = (x, y) => {
-        const result = new List<object>(x.Count + y.Count);
-        result.AddRange(x);
-        result.AddRange(y);
-        return result;
-    };
+        const stringCalculation = (x, y) => x + y;
+        const listCalculation = (x, y) => {
+            const result = [];
+            result = result.concat(x);
+            result = result.concat(y);
+            return result;
+        };
 
-this.node.Value = CalculationHelper.CalcStringOrListBinary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent; }
+        this.node.Value = CalculationHelper.CalcStringOrListBinary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Count.
     public enterFunction_Count(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Count.
     public exitFunction_Count(context: ParserRuleContext): void {
-    Func<List< object >, object > listCalculation = x => x.Count;
-Func < string, object > stringCalculation = x => x.Length;
+        const listCalculation = x => x.length;
+        const stringCalculation = x => x.length;
 
-this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent; }
+        this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Distinc.
     public enterFunction_Distinc(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Distinc.
     public exitFunction_Distinc(context: ParserRuleContext): void {
-    Func<List< object >, object > listCalculation = list => list.Distinct().ToList();
-Func < string, object > stringCalculation = x => new string(x.Distinct().ToList().ConvertAll(y => (char)y).ToArray());
-this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent; }
+        const listCalculation = list => list.filter((value, index, self) => self.indexOf(value) === index);
+        const stringCalculation = x => list.filter((value, index, self) => self.indexOf(value) === index).join("");
+        this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Difference.
     public enterFunction_Difference(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Difference.
     public exitFunction_Difference(context: ParserRuleContext): void {
-    Func<List< object >, List < object >, object > listCalculation = (x, y) => {
-        const xWithoutY = x.Except(y);
-        const yWithoutX = y.Except(x);
-        const uv = new List<object>(xWithoutY);
-        uv.AddRange(yWithoutX);
+        const listCalculation = (x, y) => {
+            const xWithoutY = x.Except(y);
+            const yWithoutX = y.Except(x);
+            const uv = new List<object>(xWithoutY);
+            uv.AddRange(yWithoutX);
 
-        return uv;
-    };
-Func < string, string, object > stringCalculation = (x, y) => {
-    const diff = listCalculation(Array.ConvertAll(x.ToArray(), u => (object)u).ToList(), Array.ConvertAll(x.ToArray(), u => (object)u).ToList());
-    if (diff is List < object > list)
-    return new string(list.ConvertAll(v => (char)v).ToArray());
+            return uv;
+        };
+        const stringCalculation = (x, y) => {
+            const diff = listCalculation(Array.ConvertAll(x.ToArray(), u => (object)u).ToList(), Array.ConvertAll(x.ToArray(), u => (object)u).ToList());
+            if (diff is List < object > list)
+            return new string(list.ConvertAll(v => (char)v).ToArray());
 
-    return null;
-};
+            return null;
+        };
 
-this.node.Value = CalculationHelper.CalcStringOrListBinary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent;}
+        this.node.Value = CalculationHelper.CalcStringOrListBinary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Except.
     public enterFunction_Except(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Except.
     public exitFunction_Except(context: ParserRuleContext): void {
-    Func<List< object >, List < object >, object > listCalculation = (x, y) => x.Except(y).ToList();
-Func < string, string, object > stringCalculation = (x, y) => new string(x.Except(y).ToList().ConvertAll(v => (char)v).ToArray());
+        const listCalculation = (x, y) => x.Except(y).ToList();
+        const stringCalculation = (x, y) => new string(x.Except(y).ToList().ConvertAll(v => (char)v).ToArray());
 
-this.node.Value = CalculationHelper.CalcStringOrListBinary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent; }
+        this.node.Value = CalculationHelper.CalcStringOrListBinary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_IndexOf.
     public enterFunction_IndexOf(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_IndexOf.
     public exitFunction_IndexOf(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-const childValues = this.node.Children.map(child => child.Value);
+        const childValues = this.node.Children.map(child => child.Value);
 
-if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues)) {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-List < object > list = childValues[0] as List<object>;
+        List < object > list = childValues[0] as List<object>;
         object value2 = childValues[1];
 
-if (list is null)
-list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
+        if (list is null)
+        list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
 
-this.node.Value = list.IndexOf(value2);
+        this.node.Value = list.IndexOf(value2);
 
-this.node = this.node.Parent; }
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_IndexOfStart.
     public enterFunction_IndexOfStart(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_IndexOfStart.
     public exitFunction_IndexOfStart(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-const childValues = this.node.Children.map(child => child.Value);
+        const childValues = this.node.Children.map(child => child.Value);
 
-if (!errorCollector.CheckParamsCount(context, 3, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues)) {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!errorCollector.CheckParamsCount(context, 3, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-List < object > list = childValues[0] as List<object>;
+        List < object > list = childValues[0] as List<object>;
         object value2 = childValues[1];
         object value3 = childValues[2];
 
-if (!int.TryParse(value3.ToString(), out int startIndex)) {
-    this.errorCollector.AddError(context, ErrorCode.ThridNotNumber, "Third parameter must be a number");
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!int.TryParse(value3.ToString(), out int startIndex)) {
+            this.errorCollector.AddError(context, ErrorCode.ThridNotNumber, "Third parameter must be a number");
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-if (list is null)
-list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
+        if (list is null)
+        list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
 
-this.node.Value = list.IndexOf(value2, startIndex);
-this.node = this.node.Parent; }
+        this.node.Value = list.IndexOf(value2, startIndex);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_IndexOfStartEnd.
     public enterFunction_IndexOfStartEnd(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_IndexOfStartEnd.
     public exitFunction_IndexOfStartEnd(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-const childValues = this.node.Children.map(child => child.Value);
+        const childValues = this.node.Children.map(child => child.Value);
 
-if (!errorCollector.CheckParamsCount(context, 4, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues)) {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!errorCollector.CheckParamsCount(context, 4, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-List < object > list = childValues[0] as List<object>;
+        List < object > list = childValues[0] as List<object>;
         object value2 = childValues[1];
 
-if (!int.TryParse(childValues[2].ToString(), out int startIndex)) {
-    this.errorCollector.AddError(context, ErrorCode.ThridNotNumber, "Third parameter must be a number");
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!int.TryParse(childValues[2].ToString(), out int startIndex)) {
+            this.errorCollector.AddError(context, ErrorCode.ThridNotNumber, "Third parameter must be a number");
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-if (!int.TryParse(childValues[3].ToString(), out int endIndex)) {
-    this.errorCollector.AddError(context, ErrorCode.ForthNotNumber, "Forth parameter must be a number");
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!int.TryParse(childValues[3].ToString(), out int endIndex)) {
+            this.errorCollector.AddError(context, ErrorCode.ForthNotNumber, "Forth parameter must be a number");
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-if (list is null)
-list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
+        if (list is null)
+        list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
 
-this.node.Value = list.IndexOf(value2, startIndex, endIndex);
+        this.node.Value = list.IndexOf(value2, startIndex, endIndex);
 
-this.node = this.node.Parent; }
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Lower.
     public enterFunction_Lower(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Lower.
     public exitFunction_Lower(context: ParserRuleContext): void {
-    Func<string, object> stringCalculation = x => x.ToLower(CultureInfo.InvariantCulture);
-    this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const stringCalculation = x => x.toLowerCase();
+        this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Reverse.
     public enterFunction_Reverse(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Reverse.
     public exitFunction_Reverse(context: ParserRuleContext): void {
-    Func<List< object >, object > listCalculation = list => list.ToReverse();
-Func < string, object > stringCalculation = x => x.ToReverse();
-this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent; }
+        const listCalculation = list => list.reverse();
+        const stringCalculation = x => x.reverse();
+        this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Upper.
     public enterFunction_Upper(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Upper.
     public exitFunction_Upper(context: ParserRuleContext): void {
-    Func<string, object> stringCalculation = x => x.ToUpper(CultureInfo.InvariantCulture);
-    this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const stringCalculation = x => x.toUpperCase(CultureInfo.InvariantCulture);
+        this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Sort.
     public enterFunction_Sort(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Sort.
     public exitFunction_Sort(context: ParserRuleContext): void {
-    Func<List< object >, object > listCalculation = list => {
-        const result = new List<object>(list);
-        result.Sort();
-        return result;
-    };
-Func < string, object > stringCalculation = x => {
-    const result = x.ToList();
-    result.Sort();
-    return new string(result.ToArray());
-};
-this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent;}
+        const listCalculation = list => {
+            const result = list.slice();
+            result.sort();
+            return result;
+        };
+        const stringCalculation = x => {
+            const result = x.map(x => x);
+            result.sort();
+            return result.join('');
+        };
+        this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Function_Trim.
     public enterFunction_Trim(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Trim.
     public exitFunction_Trim(context: ParserRuleContext): void {
-    Func<List< object >, object > listCalculation = list => {
+        const listCalculation = list => {
             int i = 0;
-        for (; i < list.Count; i += 1) {
-            const obj = list[i];
-            if (obj is null || (obj is string sValue && string.IsNullOrWhiteSpace(sValue)))
-            continue;
+            for (; i < list.Count; i += 1) {
+                const obj = list[i];
+                if (obj is null || (obj is string sValue && string.IsNullOrWhiteSpace(sValue)))
+                continue;
 
-            break;
-        }
+                break;
+            }
 
             int k = list.Count - 1;
-        for (; k > -1; k -= 1) {
-            const obj = list[k];
-            if (obj is null || (obj is string sValue && string.IsNullOrWhiteSpace(sValue)))
-            continue;
-            break;
-        }
+            for (; k > -1; k -= 1) {
+                const obj = list[k];
+                if (obj is null || (obj is string sValue && string.IsNullOrWhiteSpace(sValue)))
+                continue;
+                break;
+            }
 
-        if (i == list.Count || k == -1)
-            return new List<object>();
+            if (i == list.Count || k == -1)
+                return new List<object>();
 
-        k += 1;
+            k += 1;
 
-        return list.GetRange(i, k - i);
-    };
-Func < string, object > stringCalculation = x => x.Trim();
-this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
-this.node = this.node.Parent;}
+            return list.GetRange(i, k - i);
+        };
+        const stringCalculation = x => x.Trim();
+        this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Abs.
     public enterMath_Abs(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Abs.
     public exitMath_Abs(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Abs(Convert.ToDecimal(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.Abs(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ACos.
     public enterMath_ACos(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACos.
     public exitMath_ACos(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Acos(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.Acos(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ACosH.
     public enterMath_ACosH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACosH.
     public exitMath_ACosH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acosh(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => MathNet.Numerics.Trig.Acosh(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ASin.
     public enterMath_ASin(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ASin.
     public exitMath_ASin(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Asin(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.Asin(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ASinH.
     public enterMath_ASinH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ASinH.
     public exitMath_ASinH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Asinh(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => MathNet.Numerics.Trig.Asinh(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ATan.
     public enterMath_ATan(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ATan.
     public exitMath_ATan(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Atan(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.Atan(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ATan2.
     public enterMath_ATan2(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ATan2.
     public exitMath_ATan2(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Atan2(Convert.ToDouble(x1), Convert.ToDouble(x2));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = (x1, x2) => Math.Atan2(Number(x1), Number(x2));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ATanH.
     public enterMath_ATanH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ATanH.
     public exitMath_ATanH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Atanh(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => MathNet.Numerics.Trig.Atanh(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Cbrt.
     public enterMath_Cbrt(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Cbrt.
     public exitMath_Cbrt(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Pow(Convert.ToDouble(x), 1d / 3d);
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.pow(Number(x), 1.0 / 3.0);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Cos.
     public enterMath_Cos(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Cos.
     public exitMath_Cos(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Cos(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.cos(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_CosH.
     public enterMath_CosH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_CosH.
     public exitMath_CosH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Cosh(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.cosh(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Ceilling.
     public enterMath_Ceilling(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Ceilling.
     public exitMath_Ceilling(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Ceiling(Convert.ToDecimal(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.ceil(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Clamp.
     public enterMath_Clamp(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Clamp.
     public exitMath_Clamp(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const childValues = this.node.Children.map(child => child.Value);
+
+        if (!errorCollector.CheckParamsCount(context, 3, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues) ||
+            !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const valueList = childValues[0] as List<object>;
+        let value = 0;
+        if (valueList is null)
+        value = Number(childValues[0]);
+
+        const minList = childValues[1] as List<object>;
+        let min = 0;
+        if (minList is null)
+        min = Number(childValues[1]);
+
+        const maxList = childValues[2] as List<object>;
+        let max = 0;
+        if (maxList is null)
+        max = Number(childValues[2]);
+
+        if (valueList is null && minList is null && maxList is null)
         {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-const childValues = this.node.Children.map(child => child.Value);
-
-if (!errorCollector.CheckParamsCount(context, 3, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues) ||
-    !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-const valueList = childValues[0] as List<object>;
-        decimal value = 0;
-if (valueList is null)
-value = Convert.ToDecimal(childValues[0]);
-
-const minList = childValues[1] as List<object>;
-        decimal min = 0;
-if (minList is null)
-min = Convert.ToDecimal(childValues[1]);
-
-const maxList = childValues[2] as List<object>;
-        decimal max = 0;
-if (maxList is null)
-max = Convert.ToDecimal(childValues[2]);
-
-if (valueList is null && minList is null && maxList is null)
-{
-    this.node.Value = value < min ? min : value > max ? max : value;
-}
+            this.node.Value = value < min ? min : value > max ? max : value;
+        }
         else if (!(valueList is null))
-{
-    if (minList is null && maxList is null)
-    {
-        this.node.Value = valueList.map(x => {
-                    decimal valueX = Convert.ToDecimal(x);
-            return (object)(valueX < min ? min : valueX > max ? max : value);
-        });
-    }
-            else if (minList is null && !(maxList is null))
-    {
-        if (valueList.Count == maxList.Count) {
-            const result = new List<object>(valueList.Count);
-            for (int i = 0; i < valueList.Count; ++i)
-            {
-                value = Convert.ToDecimal(valueList[i]);
-                max = Convert.ToDecimal(maxList[i]);
-                result.Add((value < min ? min : value > max ? max : value));
-            }
-            this.node.Value = result;
-        }
-        else {
-            this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, $"Array count must be equal: Array1 Count {valueList.Count} Array3 Count {maxList.Count}");
-            this.node.Value = null;
-        }
-    }
-            else if (!(minList is null) && maxList is null)
-    {
-        if (valueList.Count == maxList.Count) {
-            const result = new List<object>(valueList.Count);
-            for (int i = 0; i < valueList.Count; ++i)
-            {
-                value = Convert.ToDecimal(valueList[i]);
-                min = Convert.ToDecimal(minList[i]);
-                result.Add((value < min ? min : value > max ? max : value));
-            }
-            this.node.Value = result;
-        }
-        else {
-            this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, $"Array count must be equal: Array1 Count {valueList.Count} Array3 Count {maxList.Count}");
-            this.node.Value = null;
-        }
-    }
-            else if (valueList.Count == minList.Count && minList.Count == maxList.Count) {
-        const result = new List<object>(valueList.Count);
-        for (int i = 0; i < valueList.Count; i += 1)
         {
-                    decimal valueX = Convert.ToDecimal(valueList[i]);
-                    decimal minX = Convert.ToDecimal(minList[i]);
-                    decimal maxX = Convert.ToDecimal(maxList[i]);
+            if (minList is null && maxList is null)
+            {
+                this.node.Value = valueList.map(x => {
+                    const valueX = Number(x);
+                    return (object)(valueX < min ? min : valueX > max ? max : value);
+                });
+            }
+            else if (minList is null && !(maxList is null))
+            {
+                if (valueList.length == maxList.length) {
+                    const result = new List<object>(valueList.Count);
+                    for (let i = 0; i < valueList.Count; ++i) {
+                        value = Number(valueList[i]);
+                        max = Number(maxList[i]);
+                        result.push((value < min ? min : value > max ? max : value));
+                    }
+                    this.node.Value = result;
+                }
+                else {
+                    this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount,`Array count must be equal: Array1 Count ${valueList.Count} Array3 Count ${maxList.Count}`);
+                    this.node.Value = null;
+                }
+            }
+            else if (!(minList is null) && maxList is null)
+            {
+                if (valueList.length == maxList.length) {
+                    const result = new List<object>(valueList.Count);
+                    for (let i = 0; i < valueList.Count; ++i) {
+                        value = Number(valueList[i]);
+                        min = Number(minList[i]);
+                        result.push((value < min ? min : value > max ? max : value));
+                    }
+                    this.node.Value = result;
+                }
+                else {
+                    this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, `Array count must be equal: Array1 Count ${valueList.Count} Array3 Count ${maxList.Count}`);
+                    this.node.Value = null;
+                }
+            }
+            else if (valueList.length == minList.length && minList.length == maxList.length) {
+                const result = new List<object>(valueList.Count);
+                for (let i = 0; i < valueList.Count; i += 1) {
+                    const valueX = Number(valueList[i]);
+                    const minX = Number(minList[i]);
+                    const maxX = Number(maxList[i]);
 
-            result.Add(valueX < minX ? minX : valueX > maxX ? maxX : valueX);
+                    result.push(valueX < minX ? minX : valueX > maxX ? maxX : valueX);
+                }
+                this.node.Value = result;
+            }
+            else {
+                this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, `Array count must be equal: Array1 Count ${valueList.Count} Array2 Count ${minList.Count} Array3 Count ${maxList.Count}`);
+                this.node.Value = null;
+            }
         }
-        this.node.Value = result;
-    }
-    else {
-        this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, $"Array count must be equal: Array1 Count {valueList.Count} Array2 Count {minList.Count} Array3 Count {maxList.Count}");
-        this.node.Value = null;
-    }
-}
 
-this.node = this.node.Parent; }
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_CrossSum.
     public enterMath_CrossSum(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_CrossSum.
     public exitMath_CrossSum(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => {
-            long value = 0;
-        foreach(var letter in Convert.ToInt64(x).ToString())
-        value += long.Parse(letter.ToString());
-        return value;
-    };
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => {
+            let value = 0;
+            foreach(var letter in Number(x).ToString())
+            value += long.Parse(letter.ToString());
+            return value;
+        };
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Derivative.
-    public enterMath_Derivative(context: ParserRuleContext): void {}
+    public enterMath_Derivative(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Derivative.
-    public exitMath_Derivative(context: ParserRuleContext): void {}
+    public exitMath_Derivative(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Exp.
     public enterMath_Exp(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Exp.
     public exitMath_Exp(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Exp(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.Exp(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Floor.
     public enterMath_Floor(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Floor.
     public exitMath_Floor(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Floor(Convert.ToDecimal(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.Floor(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Integration.
-    public enterMath_Integration(context: ParserRuleContext): void {}
+    public enterMath_Integration(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Integration.
-    public exitMath_Integration(context: ParserRuleContext): void {}
+    public exitMath_Integration(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Log.
     public enterMath_Log(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Log.
     public exitMath_Log(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Log(Convert.ToDouble(x1), Convert.ToDouble(x2));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = (x1, x2) => Math.Log(Number(x1), Number(x2));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Log2.
     public enterMath_Log2(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Log2.
     public exitMath_Log2(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Log(Convert.ToDouble(x), 2d);
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.Log(Number(x), 2d);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Log10.
     public enterMath_Log10(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Log10.
     public exitMath_Log10(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Log10(Convert.ToDouble(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        const calculation = x => Math.Log10(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Max_Array.
     public enterMath_Max_Array(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Max_Array.
     public exitMath_Max_Array(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
+        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const childValues = this.node.Children.map(child => child.Value);
+
+        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues) ||
+            !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        if (childValues[0] is List < object > list)
         {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-const childValues = this.node.Children.map(child => child.Value);
-
-if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues) ||
-    !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = double.NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-if (childValues[0] is List < object > list)
-{
-            decimal max = decimal.MinValue;
-    foreach(var value in list)
-    max = Math.Max(max, Convert.ToDecimal(value));
-    this.node.Value = max;
-}
+            let max = decimal.MinValue;
+            foreach(var value in list)
+            max = Math.Max(max, Number(value));
+            this.node.Value = max;
+        }
         else
-this.node.Value = Convert.ToDecimal(childValues[0]);
+this.node.Value = Number(childValues[0]);
 
 this.node = this.node.Parent; }
+
 
 
 
@@ -3080,7 +3055,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Max_Two.
     public exitMath_Max_Two(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Max(Convert.ToDouble(x1), Convert.ToDouble(x2));
+    Func<object, object, object> calculation = (x1, x2) => Math.Max(Number(x1), Number(x2));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3098,7 +3073,7 @@ this.node = this.node.Parent; }
     public exitMath_Min_Array(context: ParserRuleContext): void {
     if(!errorCollector.CheckHasParams(context, this.node.Children))
         {
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
@@ -3108,7 +3083,7 @@ const childValues = this.node.Children.map(child => child.Value);
 if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
     this.errorCollector.CheckIsNull(context, childValues) ||
     !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
@@ -3117,11 +3092,11 @@ if (childValues[0] is List < object > list)
 {
             decimal min = decimal.MaxValue;
     foreach(var value in list)
-    min = Math.Min(min, Convert.ToDecimal(value));
+    min = Math.Min(min, Number(value));
     this.node.Value = min;
 }
         else
-this.node.Value = Convert.ToDecimal(childValues[0]);
+this.node.Value = Number(childValues[0]);
 
 this.node = this.node.Parent; }
 
@@ -3136,7 +3111,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Min_Two.
     public exitMath_Min_Two(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Min(Convert.ToDouble(x1), Convert.ToDouble(x2));
+    Func<object, object, object> calculation = (x1, x2) => Math.Min(Number(x1), Number(x2));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3152,7 +3127,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Power.
     public exitMath_Power(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Pow(Convert.ToDouble(x1), Convert.ToDouble(x2));
+    Func<object, object, object> calculation = (x1, x2) => Math.Pow(Number(x1), Number(x2));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3168,7 +3143,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Round_Not_Decimal.
     public exitMath_Round_Not_Decimal(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Round(Convert.ToDecimal(x));
+    Func<object, object> calculation = x => Math.Round(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3184,7 +3159,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Round_Decimal.
     public exitMath_Round_Decimal(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Round(Convert.ToDecimal(x1), Convert.ToInt32(x2));
+    Func<object, object, object> calculation = (x1, x2) => Math.Round(Number(x1), Number(x2));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3200,7 +3175,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Root.
     public exitMath_Root(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Pow(Convert.ToDouble(x1), 1 / Convert.ToDouble(x2));
+    Func<object, object, object> calculation = (x1, x2) => Math.Pow(Number(x1), 1 / Number(x2));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3216,7 +3191,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Sin.
     public exitMath_Sin(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Sin(Convert.ToDouble(x));
+    Func<object, object> calculation = x => Math.Sin(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3232,7 +3207,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_SinH.
     public exitMath_SinH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Sinh(Convert.ToDouble(x));
+    Func<object, object> calculation = x => Math.Sinh(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3248,7 +3223,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Sqrt.
     public exitMath_Sqrt(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Sqrt(Convert.ToDouble(x));
+    Func<object, object> calculation = x => Math.Sqrt(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3264,7 +3239,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Tan.
     public exitMath_Tan(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Tan(Convert.ToDouble(x));
+    Func<object, object> calculation = x => Math.Tan(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3280,7 +3255,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_TanH.
     public exitMath_TanH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Tanh(Convert.ToDouble(x));
+    Func<object, object> calculation = x => Math.Tanh(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3296,7 +3271,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Truncate.
     public exitMath_Truncate(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Truncate(Convert.ToDecimal(x));
+    Func<object, object> calculation = x => Math.Truncate(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3314,7 +3289,7 @@ this.node = this.node.Parent; }
     public exitMath_Norm(context: ParserRuleContext): void {
     if(!errorCollector.CheckHasParams(context, this.node.Children))
         {
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
@@ -3324,7 +3299,7 @@ const childValues = this.node.Children.map(child => child.Value);
 if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
     this.errorCollector.CheckIsNull(context, childValues) ||
     !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
@@ -3334,19 +3309,19 @@ const list = childValues[0] as List<object>;
 if (list is null)
 {
     this.errorCollector.AddError(context, ErrorCode.FirstNotNumberArray, "First parameter must be an Array");
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
 
 if (!double.TryParse(childValues[1].ToString(), outconst value)) {
     this.errorCollector.AddError(context, ErrorCode.SecondNotNumber, "Second parameter must be a number");
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
 
-this.node.Value = Vector<double>.Build.DenseOfArray(Array.ConvertAll(list.ToArray(), y => Convert.ToDouble(y))).Norm(value);
+this.node.Value = Vector<double>.Build.DenseOfArray(Array.ConvertAll(list.ToArray(), y => Number(y))).Norm(value);
 this.node = this.node.Parent;}
 
 
@@ -3360,7 +3335,7 @@ this.node = this.node.Parent;}
 
     // Exit a parse tree produced by EveryGrammarParser#Math_EulerNorm.
     public exitMath_EulerNorm(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = x => Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), y => Convert.ToDouble(y))).L2Norm();
+    Func<List< object >, object > calculation = x => Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), y => Number(y))).L2Norm();
 this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
@@ -3375,7 +3350,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_MaxNorm.
     public exitMath_MaxNorm(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = x => Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), y => Convert.ToDouble(y))).InfinityNorm();
+    Func<List< object >, object > calculation = x => Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), y => Number(y))).InfinityNorm();
 this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
@@ -3390,7 +3365,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_GreatesCommonDivisor.
     public exitMath_GreatesCommonDivisor(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.Euclid.GreatestCommonDivisor(Convert.ToInt64(x), Convert.ToInt64(y));
+    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.Euclid.GreatestCommonDivisor(Number(x), Number(y));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3406,7 +3381,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_LeastCommonMultiple.
     public exitMath_LeastCommonMultiple(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.Euclid.LeastCommonMultiple(Convert.ToInt64(x), Convert.ToInt64(y));
+    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.Euclid.LeastCommonMultiple(Number(x), Number(y));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3422,7 +3397,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_DotProduct.
     public exitMath_DotProduct(context: ParserRuleContext): void {
-    Converter<object, double> converter = y => Convert.ToDouble(y);
+    Converter<object, double> converter = y => Number(y);
     Func<List< object >, List < object >, object > calculation = (x, z) =>
         Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), converter)).DotProduct(
             Vector<double>.Build.DenseOfArray(Array.ConvertAll(z.ToArray(), converter)));
@@ -3441,7 +3416,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Binomila.
     public exitMath_Binomila(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.SpecialFunctions.Binomial(Convert.ToInt32(x), Convert.ToInt32(y));
+    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.SpecialFunctions.Binomial(Number(x), Number(y));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3457,7 +3432,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACot.
     public exitMath_ACot(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acot(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acot(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3473,7 +3448,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACotH.
     public exitMath_ACotH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acoth(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acoth(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3489,7 +3464,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACsc.
     public exitMath_ACsc(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acsc(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acsc(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3505,7 +3480,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACscH.
     public exitMath_ACscH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acsch(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acsch(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3521,7 +3496,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ASec.
     public exitMath_ASec(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Asec(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Asec(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3537,7 +3512,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ASecH.
     public exitMath_ASecH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Asech(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Asech(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3553,7 +3528,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Cot.
     public exitMath_Cot(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Cot(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Cot(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3569,7 +3544,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_CotH.
     public exitMath_CotH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Coth(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Coth(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3585,7 +3560,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Csc.
     public exitMath_Csc(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Csc(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Csc(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3601,7 +3576,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_CscH.
     public exitMath_CscH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Csch(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Csch(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3617,7 +3592,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Sec.
     public exitMath_Sec(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Sec(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Sec(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3633,7 +3608,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#Math_SecH.
     public exitMath_SecH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Sech(Convert.ToDouble(x));
+    Func<object, object> calculation = x => MathNet.Numerics.Trig.Sech(Number(x));
     this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
     this.node = this.node.Parent;
 }
@@ -3649,7 +3624,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_CoVariance.
     public exitMathStatistic_CoVariance(context: ParserRuleContext): void {
-    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)ArrayStatistics.Covariance(Array.ConvertAll(list1.ToArray(), x => Convert.ToDouble(x)), Array.ConvertAll(list2.ToArray(), x => Convert.ToDouble(x)));
+    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)ArrayStatistics.Covariance(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
 this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
@@ -3664,7 +3639,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Mean.
     public exitMathStatistic_Mean(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = list => (object)ArrayStatistics.Mean(Array.ConvertAll(list.ToArray(), x => Convert.ToDouble(x)));
+    Func<List< object >, object > calculation = list => (object)ArrayStatistics.Mean(Array.ConvertAll(list.ToArray(), x => Number(x)));
 this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
@@ -3679,7 +3654,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Median.
     public exitMathStatistic_Median(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = list => (object)ArrayStatistics.MedianInplace(Array.ConvertAll(list.ToArray(), x => Convert.ToDouble(x)));
+    Func<List< object >, object > calculation = list => (object)ArrayStatistics.MedianInplace(Array.ConvertAll(list.ToArray(), x => Number(x)));
 this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
@@ -3694,7 +3669,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Pearson.
     public exitMathStatistic_Pearson(context: ParserRuleContext): void {
-    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)Correlation.Pearson(Array.ConvertAll(list1.ToArray(), x => Convert.ToDouble(x)), Array.ConvertAll(list2.ToArray(), x => Convert.ToDouble(x)));
+    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)Correlation.Pearson(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
 this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
@@ -3711,7 +3686,7 @@ this.node = this.node.Parent; }
     public exitMathStatistic_Quantil(context: ParserRuleContext): void {
     if(!errorCollector.CheckHasParams(context, this.node.Children))
         {
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
@@ -3721,7 +3696,7 @@ const childValues = this.node.Children.map(child => child.Value);
 if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
     this.errorCollector.CheckIsNull(context, childValues) ||
     !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
@@ -3731,19 +3706,19 @@ const list = childValues[0] as List<object>;
 if (list is null)
 {
     this.errorCollector.AddError(context, ErrorCode.FirstNotNumberArray, "First parameter must be an Array");
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
 
 if (!double.TryParse(childValues[1].ToString(), outconst value)) {
     this.errorCollector.AddError(context, ErrorCode.SecondNotNumber, "Second parameter must be a number");
-    this.node.Value = double.NaN;
+    this.node.Value = NaN;
     this.node = this.node.Parent;
     return;
 }
 
-this.node.Value = ArrayStatistics.QuantileInplace(list.ConvertAll(x => Convert.ToDouble(x)).ToArray(), value);
+this.node.Value = ArrayStatistics.QuantileInplace(list.ConvertAll(x => Number(x)).ToArray(), value);
 this.node = this.node.Parent; }
 
 
@@ -3757,7 +3732,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Spearman.
     public exitMathStatistic_Spearman(context: ParserRuleContext): void {
-    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)Correlation.Spearman(Array.ConvertAll(list1.ToArray(), x => Convert.ToDouble(x)), Array.ConvertAll(list2.ToArray(), x => Convert.ToDouble(x)));
+    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)Correlation.Spearman(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
 this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
@@ -3772,7 +3747,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_StD.
     public exitMathStatistic_StD(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = list => (object)ArrayStatistics.StandardDeviation(Array.ConvertAll(list.ToArray(), x => Convert.ToDouble(x)));
+    Func<List< object >, object > calculation = list => (object)ArrayStatistics.StandardDeviation(Array.ConvertAll(list.ToArray(), x => Number(x)));
 this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
@@ -3787,7 +3762,7 @@ this.node = this.node.Parent; }
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Variance.
     public exitMathStatistic_Variance(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = list => (object)ArrayStatistics.Variance(Array.ConvertAll(list.ToArray(), x => Convert.ToDouble(x)));
+    Func<List< object >, object > calculation = list => (object)ArrayStatistics.Variance(Array.ConvertAll(list.ToArray(), x => Number(x)));
 this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
 this.node = this.node.Parent; }
 
