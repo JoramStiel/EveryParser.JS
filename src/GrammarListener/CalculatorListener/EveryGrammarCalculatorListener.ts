@@ -6,9 +6,10 @@ import { Argument } from '../../Argument';
 import EveryGrammarListener from '../../EveryGrammarListener';
 import { ErrorCode, ErrorCollector } from '../ErrorCollector';
 import { NodeCalculator } from './NodeCalculator';
-import { ArraySlicingType } from '../ArraySlicingType';
+import { ArraySlicingType, ArraySlicingTypeExtension } from '../ArraySlicingType';
 import { CalculationHelper } from './CalculationHelper';
 import { TypeCheckHelper } from '../TypeCheckHelper';
+import { isStringNullOrWhitespace, stringArrayToString, stringToArray } from '../HelperFunctions';
 
 // This class defines a complete listener for a parse tree produced by EveryGrammarParser.
 export class EveryGrammarCalculatorListener implements EveryGrammarListener {
@@ -25,7 +26,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
     constructor(args: Argument[]) {
         this.arguments = args;
         this.errorCollector = new ErrorCollector();
-        this.lastArraySlicingType = ArraySlicingType.None;
+        this.lastArraySlicingType = ArraySlicingType.Indexing;
     }
 
 
@@ -52,7 +53,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
     // Exit a parse tree produced by EveryGrammarParser#startRule.
     public exitStartRule(context: ParserRuleContext): void {
         if (this.node)
-            this.result = this.errorCollector.CheckHasParams(context, this.this.node.Children) ? this.this.node.Children[0].Value : null;
+            this.result = this.errorCollector.CheckHasParams(context, this.node.Children) ? this.node.Children[0].Value : null;
     }
 
 
@@ -84,7 +85,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing.
     public exitArraySlicing(context: ParserRuleContext): void {
-        ArraySlicing(context, _lastArraySlicingType);
+        this.ArraySlicing(context, this.lastArraySlicingType);
     }
 
 
@@ -134,6 +135,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#BoolOr.
     public exitBoolOr(context: ParserRuleContext): void {
+if(!this.node)
+    return;
+
         const calculation = (x1: boolean, x2: boolean) => x1 || x2;
         this.node.Value = CalculationHelper.CalcBooleanOrBooleanArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -159,7 +163,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#BoolXOr.
     public exitBoolXOr(context: ParserRuleContext): void {
-        const calculation = (x1: boolean, x2: boolean) => x1 ^ x2;
+        if(!this.node)
+            return;
+
+        const calculation = (x1: boolean, x2: boolean) => ( x1 && !x2 ) || ( !x1 && x2 );
         this.node.Value = CalculationHelper.CalcBooleanOrBooleanArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -184,6 +191,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#BoolAnd.
     public exitBoolAnd(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1: boolean, x2: boolean) => x1 && x2;
         this.node.Value = CalculationHelper.CalcBooleanOrBooleanArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -200,7 +210,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Equality_Contains.
     public exitEquality_Contains(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -208,7 +221,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues)) {
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -218,9 +231,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         const value2 = childValues[1];
 
         if (TypeCheckHelper.IsArray(value2))
-            this.node.Value = list2.Contains(value1);
+            this.node.Value = value2.includes(value1);
         else if (TypeCheckHelper.IsString(value2))
-            this.node.Value = v2.Contains(value1.ToString());
+            this.node.Value = value2.includes(value1.ToString());
         else {
             this.errorCollector.AddError(context, ErrorCode.SecondParamIsNotArray, "The second argument is not an array");
             this.node.Value = null;
@@ -249,7 +262,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Equality_Equal.
     public exitEquality_Equal(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -257,7 +273,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues)) {
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -267,7 +283,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         const value2 = childValues[1];
 
         if (TypeCheckHelper.IsArray(value1) && TypeCheckHelper.IsArray(value2))
-            this.node.Value = list1.SequenceEqual(list2);
+            this.node.Value = value1.sort().join(',')=== value2.sort().join(',');
         else
             this.node.Value = value1.Equals(value2);
 
@@ -285,7 +301,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Equality_NotEqualIgnoreCase.
     public exitEquality_NotEqualIgnoreCase(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -293,9 +312,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsStringOrListOfStrings(context, childValues)) {
+            !this.errorCollector.CheckIsStringOrListOfStrings(context, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -323,7 +342,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Equality_NotEqual.
     public exitEquality_NotEqual(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -331,7 +353,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues)) {
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -359,7 +381,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Equality_NotContains.
     public exitEquality_NotContains(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -367,7 +392,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues)) {
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -399,7 +424,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Equality_EqualIgnoreCase.
     public exitEquality_EqualIgnoreCase(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -407,9 +435,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsStringOrListOfStrings(context, childValues)) {
+            !this.errorCollector.CheckIsStringOrListOfStrings(context, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -446,8 +474,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Check_Greater.
     public exitCheck_Greater(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) > Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -462,8 +493,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Check_GreaterEqual.
     public exitCheck_GreaterEqual(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) >= Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -478,8 +512,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Check_Lower.
     public exitCheck_Lower(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) < Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -494,8 +531,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Check_LowerEqual.
     public exitCheck_LowerEqual(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) <= Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -510,7 +550,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#BitOR.
     public exitBitOR(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -518,9 +561,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsNumber(context, childValues)) {
+            !this.errorCollector.CheckIsNumber(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -550,7 +593,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#BitAnd.
     public exitBitAnd(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -558,9 +604,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsNumber(context, childValues)) {
+            !this.errorCollector.CheckIsNumber(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -590,8 +636,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Line_Addition.
     public exitLine_Addition(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) + Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -606,8 +655,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Line_Subtraction.
     public exitLine_Subtraction(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) - Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -631,8 +683,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_PowerOperator.
     public exitPointTerm_PowerOperator(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => Math.pow(x1, x2);
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -647,8 +702,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_Modulo.
     public exitPointTerm_Modulo(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) % Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -663,8 +721,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_Multiply.
     public exitPointTerm_Multiply(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) * Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -679,7 +740,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_BitShiftLeft.
     public exitPointTerm_BitShiftLeft(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -687,9 +751,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsNumber(context, childValues)) {
+            !this.errorCollector.CheckIsNumber(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -710,8 +774,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_IntegerDivision.
     public exitPointTerm_IntegerDivision(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) / Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -726,7 +793,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_BitShiftRight.
     public exitPointTerm_BitShiftRight(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -734,9 +804,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsNumber(context, childValues)) {
+            !this.errorCollector.CheckIsNumber(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -757,8 +827,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#PointTerm_Divide.
     public exitPointTerm_Divide(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => (object)(Number(x1) / Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -782,7 +855,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Not.
     public exitFactor_Not(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -790,9 +866,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsBooleanOrArrayOfBoolean(context, childValues)) {
+            !this.errorCollector.CheckIsBooleanOrArrayOfBoolean(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -817,6 +893,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Minus.
     public exitFactor_Minus(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => -x;
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -833,7 +912,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Plus.
     public exitFactor_Plus(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -841,9 +923,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            !this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -864,6 +946,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Tilde.
     public exitFactor_Tilde(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => ~x;
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -880,6 +965,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Factor_Factorial.
     public exitFactor_Factorial(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => CalculationHelper.CalcFactorial(x);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -1123,6 +1211,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Random_DecimalArray.
     public exitRandom_DecimalArray(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => {
             const count = Number(x);
 
@@ -1147,6 +1238,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Random_DecimalMinMax.
     public exitRandom_DecimalMinMax(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x, y) => {
             const min = Number(x);
             const max = Number(y);
@@ -1175,6 +1269,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Random_DecimalArrayMinMax.
     public exitRandom_DecimalArrayMinMax(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (w, x, y) => {
             const count = Number(w);
             const min = Number(x);
@@ -1221,6 +1318,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Random_IntegerArray.
     public exitRandom_IntegerArray(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => {
             const count = Number(x);
 
@@ -1246,6 +1346,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Random_IntegerMinMax.
     public exitRandom_IntegerMinMax(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x, y) => {
             const min = Number(x);
             const max = Number(y);
@@ -1267,6 +1370,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Random_IntegerArrayMinMax.
     public exitRandom_IntegerArrayMinMax(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (w, x, y) => {
             const count = Number(w);
             const min = Number(x);
@@ -1293,7 +1399,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_ToArray.
     public exitConvert_ToArray(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -1301,7 +1410,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
@@ -1313,7 +1422,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         if (TypeCheckHelper.IsArray(value))
             this.node.Value = value;
         else if (TypeCheckHelper.IsString(value))
-            this.node.Value = value.map(x => x.ToString());
+            this.node.Value = stringToArray(value);
         else if (TypeCheckHelper.IsNumber(value) || TypeCheckHelper.IsBoolean(value) || TypeCheckHelper.IsDateTime(value))
             this.node.Value = [value];
 
@@ -1331,7 +1440,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_ToBoolean.
     public exitConvert_ToBoolean(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -1339,7 +1451,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
@@ -1371,7 +1483,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_ToNumber.
     public exitConvert_ToNumber(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -1379,7 +1494,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
@@ -1409,7 +1524,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_ToString.
     public exitConvert_ToString(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -1417,7 +1535,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
@@ -1443,6 +1561,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_DegreeToGrad.
     public exitConvert_DegreeToGrad(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.DegreeToGrad(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -1459,6 +1580,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_DegreeToRadian.
     public exitConvert_DegreeToRadian(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.DegreeToRadian(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -1475,6 +1599,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_GradToDegree.
     public exitConvert_GradToDegree(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.GradToDegree(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -1491,6 +1618,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_GradToRadian.
     public exitConvert_GradToRadian(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.GradToRadian(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -1507,6 +1637,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_RadianToDegree.
     public exitConvert_RadianToDegree(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.RadianToDegree(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -1523,6 +1656,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Convert_RadianToGrad.
     public exitConvert_RadianToGrad(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.RadianToGrad(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -1539,7 +1675,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#DateTime_Expression.
     public exitDateTime_Expression(context: ParserRuleContext): void {
-        SetNodeForDateTimeValue(context, 1);
+        this.SetNodeForDateTimeValue(context, 1);
     }
 
 
@@ -1553,7 +1689,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#DateTime_DateEntry.
     public exitDateTime_DateEntry(context: ParserRuleContext): void {
-        SetNodeForDateTimeValue(context, 3);
+        this.SetNodeForDateTimeValue(context, 3);
     }
 
 
@@ -1567,7 +1703,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHour.
     public exitDateTime_DateHour(context: ParserRuleContext): void {
-        SetNodeForDateTimeValue(context, 4);
+        this.SetNodeForDateTimeValue(context, 4);
     }
 
 
@@ -1581,7 +1717,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHourMinute.
     public exitDateTime_DateHourMinute(context: ParserRuleContext): void {
-        SetNodeForDateTimeValue(context, 5);
+        this.SetNodeForDateTimeValue(context, 5);
     }
 
 
@@ -1595,7 +1731,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#DateTime_DateHourMinuteSeconds.
     public exitDateTime_DateHourMinuteSeconds(context: ParserRuleContext): void {
-        SetNodeForDateTimeValue(context, 6);
+        this.SetNodeForDateTimeValue(context, 6);
     }
 
 
@@ -1609,13 +1745,16 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#DateTime_Full.
     public exitDateTime_Full(context: ParserRuleContext): void {
-        SetNodeForDateTimeValue(context, 7);
+        this.SetNodeForDateTimeValue(context, 7);
     }
 
     /// <summary>
     /// Sets the value of the node and goes up to parent, if some error is done
     /// </summary>
     private SetErrorNodeFor_ExitFactor_DateTimeTerm() {
+        if(!this.node)
+            return;
+            
         this.node.Value = null;
         this.node = this.node.Parent;
     }
@@ -1627,8 +1766,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
     /// <param name="context"></param>
     /// <param name="expectedDateParameters"></param>
     private SetNodeForDateTimeValue(context: ParserRuleContext, expectedDateParameters: number) {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
-            SetErrorNodeFor_ExitFactor_DateTimeTerm();
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.SetErrorNodeFor_ExitFactor_DateTimeTerm();
             return;
         }
 
@@ -1640,17 +1782,17 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, expectedDateParameters, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, expectedDateParameters, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues)) {
-            SetErrorNodeFor_ExitFactor_DateTimeTerm();
+            this.SetErrorNodeFor_ExitFactor_DateTimeTerm();
             return;
         }
 
         const date = new new Date();
         const dateList: Date[] = [];
 
-        if (!errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-            SetErrorNodeFor_ExitFactor_DateTimeTerm();
+        if (!this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            this.SetErrorNodeFor_ExitFactor_DateTimeTerm();
             return;
         }
 
@@ -1744,7 +1886,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_Indexing.
     public exitArraySlicing_Indexing(context: ParserRuleContext): void {
-        _lastArraySlicingType = ArraySlicingType.Indexing;
+        this.lastArraySlicingType = ArraySlicingType.Indexing;
     }
 
 
@@ -1755,7 +1897,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_Slicing.
     public exitArraySlicing_Slicing(context: ParserRuleContext): void {
-        _lastArraySlicingType = ArraySlicingType.Slicing;
+        this.lastArraySlicingType = ArraySlicingType.Slicing;
     }
 
 
@@ -1766,7 +1908,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StepSlicing.
     public exitArraySlicing_StepSlicing(context: ParserRuleContext): void {
-        _lastArraySlicingType = ArraySlicingType.StepSlicing;
+        this.lastArraySlicingType = ArraySlicingType.StepSlicing;
     }
 
 
@@ -1777,7 +1919,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StartSlicing.
     public exitArraySlicing_StartSlicing(context: ParserRuleContext): void {
-        _lastArraySlicingType = ArraySlicingType.StartSlicing;
+        this.lastArraySlicingType = ArraySlicingType.StartSlicing;
     }
 
 
@@ -1788,7 +1930,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_StartStepSlicing.
     public exitArraySlicing_StartStepSlicing(context: ParserRuleContext): void {
-        _lastArraySlicingType = ArraySlicingType.StartStepSlicing;
+        this.lastArraySlicingType = ArraySlicingType.StartStepSlicing;
     }
 
 
@@ -1799,7 +1941,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_EndSlicing.
     public exitArraySlicing_EndSlicing(context: ParserRuleContext): void {
-        _lastArraySlicingType = ArraySlicingType.EndSlicing;
+        this.lastArraySlicingType = ArraySlicingType.EndSlicing;
     }
 
 
@@ -1810,7 +1952,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_EndStepSlicing.
     public exitArraySlicing_EndStepSlicing(context: ParserRuleContext): void {
-        _lastArraySlicingType = ArraySlicingType.EndStepSlicing;
+        this.lastArraySlicingType = ArraySlicingType.EndStepSlicing;
     }
 
 
@@ -1821,11 +1963,14 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#ArraySlicing_AllStepSlicing.
     public exitArraySlicing_AllStepSlicing(context: ParserRuleContext): void {
-        _lastArraySlicingType = ArraySlicingType.AllStepSlicing;
+        this.lastArraySlicingType = ArraySlicingType.AllStepSlicing;
     }
 
     private ArraySlicing(context: ParserRuleContext, arraySlicingType: ArraySlicingType): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
@@ -1833,61 +1978,61 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const parametersCount = ArraySlicingTypeExtension.GetParameterCount(arraySlicingType);
 
-        const childValues = this.node.Children.GetRange(1, parametersCount - 1).map(child => child.Value);
+        const childValues = this.node.Children.slice(1, parametersCount - 1).map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, parametersCount - 1, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, parametersCount - 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            !this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
             this.node.Value = null;
             this.node = this.node.Parent;
             return;
         }
 
-        const array: any[] = this.node.Children[0].Value;
+        let array: any[] = this.node.Children[0].Value;
         if (!array) {
             const text: string = this.node.Children[0].Value;
-            if (text.trim() === "") {
+            if (isStringNullOrWhitespace(text)) {
                 this.errorCollector.AddError(context, ErrorCode.FirstIsNotArray, "The first parameter musst be an array or string!");
                 this.node.Value = null;
                 this.node = this.node.Parent;
                 return;
             }
 
-            array = text.map(x => x);
+            array = stringToArray(text);
         }
 
         switch (arraySlicingType) {
             case ArraySlicingType.Indexing:
-                this.node.Value = SliceArray(context, array, childValues[0]);
+                this.node.Value = this.SliceArray(context, array, childValues[0]);
                 break;
 
             case ArraySlicingType.Slicing:
-                this.node.Value = SliceArrayFromTo(context, array, childValues[0], childValues[1]);
+                this.node.Value = this.SliceArrayFromTo(context, array, childValues[0], childValues[1]);
                 break;
 
             case ArraySlicingType.StepSlicing:
 
-                this.node.Value = SliceArrayFromToStep(context, array, childValues[0], childValues[1], childValues[2]);
+                this.node.Value = this.SliceArrayFromToStep(context, array, childValues[0], childValues[1], childValues[2]);
                 break;
 
             case ArraySlicingType.StartSlicing:
-                this.node.Value = SliceArrayFromTo(context, array, childValues[0], array.Count);
+                this.node.Value = this.SliceArrayFromTo(context, array, childValues[0], array.length);
                 break;
 
             case ArraySlicingType.StartStepSlicing:
-                this.node.Value = SliceArrayFromToStep(context, array, childValues[0], array.Count, childValues[1]);
+                this.node.Value = this.SliceArrayFromToStep(context, array, childValues[0], array.length, childValues[1]);
                 break;
 
             case ArraySlicingType.EndSlicing:
-                this.node.Value = SliceArrayFromTo(context, array, 0, childValues[0]);
+                this.node.Value = this.SliceArrayFromTo(context, array, 0, childValues[0]);
                 break;
 
             case ArraySlicingType.EndStepSlicing:
-                this.node.Value = SliceArrayFromToStep(context, array, 0, childValues[0], childValues[1]);
+                this.node.Value = this.SliceArrayFromToStep(context, array, 0, childValues[0], childValues[1]);
                 break;
 
             case ArraySlicingType.AllStepSlicing:
-                this.node.Value = SliceArrayFromToStep(context, array, 0, array.Count, childValues[0]);
+                this.node.Value = this.SliceArrayFromToStep(context, array, 0, array.length, childValues[0]);
                 break;
         }
 
@@ -1900,9 +2045,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         if (!indexList) {
             let index: number = Number(indexObj);
             if (index < 0)
-                index = array.Count + index;
+                index = array.length + index;
 
-            if (index >= array.Count) {
+            if (index >= array.length) {
                 this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be higher or equal to the length of the array!");
                 return null;
             }
@@ -1917,9 +2062,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
         return indexList.map(x => {
             let index: number = Number(indexObj);
             if (index < 0)
-                index = array.Count + index;
+                index = array.length + index;
 
-            if (index >= array.Count) {
+            if (index >= array.length) {
                 this.errorCollector.AddError(context, ErrorCode.IndexNotCorrect, "The index can't be higher or equal to the length of the array!");
                 return null;
             }
@@ -2097,6 +2242,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsArray.
     public exitCheckFunction_IsArray(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => TypeCheckHelper.IsArray(x);
         this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2113,6 +2261,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsBoolean.
     public exitCheckFunction_IsBoolean(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => TypeCheckHelper.IsBoolean(x);
         this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2129,6 +2280,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsDateTime.
     public exitCheckFunction_IsDateTime(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => TypeCheckHelper.IsDateTime(x);
         this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2145,6 +2299,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsNull.
     public exitCheckFunction_IsNull(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => x == null;
         this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2161,6 +2318,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsNumber.
     public exitCheckFunction_IsNumber(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => TypeCheckHelper.IsNumber(x);
         this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2177,6 +2337,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsString.
     public exitCheckFunction_IsString(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => TypeCheckHelper.IsString(x);
         this.node.Value = CalculationHelper.CalcAnyUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2193,7 +2356,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_IsWhitespace.
     public exitCheckFunction_IsWhitespace(context: ParserRuleContext): void {
-        const stringCalculation = x => x.trim() === "";
+        if(!this.node)
+            return;
+            
+        const stringCalculation = x => isStringNullOrWhitespace(x);
         this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -2209,6 +2375,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_HasAny.
     public exitCheckFunction_HasAny(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const listCalculation = list => list.length > 0;
         const stringCalculation = x => x.Any();
         this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
@@ -2226,6 +2395,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#CheckFunction_HasDuplicates.
     public exitCheckFunction_HasDuplicates(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const listCalculation = list => list.filter((value, index, self) => self.indexOf(value) === index).length < list.length;
         const stringCalculation = x => list.filter((value, index, self) => self.indexOf(value) === index).length < x.length;
         this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
@@ -2243,9 +2415,12 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Concat.
     public exitFunction_Concat(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const stringCalculation = (x, y) => x + y;
         const listCalculation = (x, y) => {
-            const result = [];
+            let result = [];
             result = result.concat(x);
             result = result.concat(y);
             return result;
@@ -2266,6 +2441,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Count.
     public exitFunction_Count(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const listCalculation = x => x.length;
         const stringCalculation = x => x.length;
 
@@ -2284,8 +2462,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Distinc.
     public exitFunction_Distinc(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const listCalculation = list => list.filter((value, index, self) => self.indexOf(value) === index);
-        const stringCalculation = x => list.filter((value, index, self) => self.indexOf(value) === index).join("");
+        const stringCalculation = x => stringArrayToString(list.filter((value, index, self) => self.indexOf(value) === index));
         this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -2298,23 +2479,16 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
             this.node = this.node.AddChildNode();
     }
 
-
     // Exit a parse tree produced by EveryGrammarParser#Function_Difference.
     public exitFunction_Difference(context: ParserRuleContext): void {
-        const listCalculation = (x, y) => {
-            const xWithoutY = x.Except(y);
-            const yWithoutX = y.Except(x);
-            const uv = new List<object>(xWithoutY);
-            uv.AddRange(yWithoutX);
-
-            return uv;
-        };
+        if(!this.node)
+            return;
+            
+        const listCalculation = (x, y) => x.filter(value => !y.includes(value)).concat(y.filter(value => !x.includes(value)));
         const stringCalculation = (x, y) => {
-            const diff = listCalculation(Array.ConvertAll(x.ToArray(), u => (object)u).ToList(), Array.ConvertAll(x.ToArray(), u => (object)u).ToList());
-            if (diff is List < object > list)
-            return new string(list.ConvertAll(v => (char)v).ToArray());
-
-            return null;
+            const first = stringToArray(x);
+            const second = stringToArray(y);
+            return stringArrayToString(listCalculation(first, second));
         };
 
         this.node.Value = CalculationHelper.CalcStringOrListBinary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
@@ -2332,8 +2506,15 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Except.
     public exitFunction_Except(context: ParserRuleContext): void {
-        const listCalculation = (x, y) => x.Except(y).ToList();
-        const stringCalculation = (x, y) => new string(x.Except(y).ToList().ConvertAll(v => (char)v).ToArray());
+        if(!this.node)
+            return;
+            
+        const listCalculation = (x, y) => x.filter(value => !y.includes(value));
+        const stringCalculation = (x, y) => {
+            const first = stringToArray(x);
+            const second = stringToArray(y);
+            return stringArrayToString(listCalculation(first, second));
+        };
 
         this.node.Value = CalculationHelper.CalcStringOrListBinary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2350,7 +2531,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_IndexOf.
     public exitFunction_IndexOf(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -2358,18 +2542,21 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        List < object > list = childValues[0] as List<object>;
-        object value2 = childValues[1];
+        let list = null
+        if (TypeCheckHelper.IsArray(childValues[0]))
+            list = childValues[0];
 
-        if (list is null)
-        list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
+        const value2 = childValues[1];
+
+        if (!list)
+            list = stringToArray(childValues[0].ToString());
 
         this.node.Value = list.IndexOf(value2);
 
@@ -2387,7 +2574,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_IndexOfStart.
     public exitFunction_IndexOfStart(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -2395,26 +2585,30 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 3, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 3, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        List < object > list = childValues[0] as List<object>;
-        object value2 = childValues[1];
-        object value3 = childValues[2];
+        let list = null
+        if (TypeCheckHelper.IsArray(childValues[0]))
+            list = childValues[0];
 
-        if (!int.TryParse(value3.ToString(), out int startIndex)) {
+        const value2 = childValues[1];
+
+        if (!TypeCheckHelper.IsNumber(childValues[2])) {
             this.errorCollector.AddError(context, ErrorCode.ThridNotNumber, "Third parameter must be a number");
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        if (list is null)
-        list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
+        const startIndex = int.Parse(childValues[2].ToString());
+
+        if (!list)
+            list = stringToArray(childValues[0].ToString());
 
         this.node.Value = list.IndexOf(value2, startIndex);
         this.node = this.node.Parent;
@@ -2431,7 +2625,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_IndexOfStartEnd.
     public exitFunction_IndexOfStartEnd(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -2439,34 +2636,41 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 4, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 4, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        List < object > list = childValues[0] as List<object>;
-        object value2 = childValues[1];
+        let list = null;
+        if (TypeCheckHelper.IsArray(childValues[0]))
+            list = childValues[0];
 
-        if (!int.TryParse(childValues[2].ToString(), out int startIndex)) {
+        const value2 = childValues[1];
+
+        if (!TypeCheckHelper.IsNumber(childValues[2])) {
             this.errorCollector.AddError(context, ErrorCode.ThridNotNumber, "Third parameter must be a number");
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        if (!int.TryParse(childValues[3].ToString(), out int endIndex)) {
+        const startIndex = int.Parse(childValues[2].ToString());
+
+        if (!TypeCheckHelper.IsNumber(childValues[3])) {
             this.errorCollector.AddError(context, ErrorCode.ForthNotNumber, "Forth parameter must be a number");
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        if (list is null)
-        list = childValues[0].ToString().ToList().ConvertAll(x => (object)x);
+        const endIndex = int.Parse(childValues[3].ToString());
 
-        this.node.Value = list.IndexOf(value2, startIndex, endIndex);
+        if (!list)
+            list = stringToArray(childValues[0].ToString());
+
+        this.node.Value = list.slice(startIndex, endIndex - startIndex).indexOf(value2);
 
         this.node = this.node.Parent;
     }
@@ -2482,6 +2686,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Lower.
     public exitFunction_Lower(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const stringCalculation = x => x.toLowerCase();
         this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2498,6 +2705,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Reverse.
     public exitFunction_Reverse(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const listCalculation = list => list.reverse();
         const stringCalculation = x => x.reverse();
         this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
@@ -2515,6 +2725,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Upper.
     public exitFunction_Upper(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const stringCalculation = x => x.toUpperCase(CultureInfo.InvariantCulture);
         this.node.Value = CalculationHelper.CalcStringOrStringListUnary(context, this.errorCollector, stringCalculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2531,15 +2744,18 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Sort.
     public exitFunction_Sort(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const listCalculation = list => {
             const result = list.slice();
             result.sort();
             return result;
         };
         const stringCalculation = x => {
-            const result = x.map(x => x);
+            const result = stringToArray(x);
             result.sort();
-            return result.join('');
+            return stringArrayToString(result);
         };
         this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2556,32 +2772,34 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Function_Trim.
     public exitFunction_Trim(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const listCalculation = list => {
-            int i = 0;
+            let i = 0;
             for (; i < list.Count; i += 1) {
                 const obj = list[i];
-                if (obj is null || (obj is string sValue && string.IsNullOrWhiteSpace(sValue)))
-                continue;
-
+                if (!obj || (TypeCheckHelper.IsString(obj) && isStringNullOrWhitespace(obj)))
+                    continue;
                 break;
             }
 
-            int k = list.Count - 1;
+            let k = list.Count - 1;
             for (; k > -1; k -= 1) {
                 const obj = list[k];
-                if (obj is null || (obj is string sValue && string.IsNullOrWhiteSpace(sValue)))
-                continue;
+                if (!obj || (TypeCheckHelper.IsString(obj) && isStringNullOrWhitespace(obj)))
+                    continue;
                 break;
             }
 
-            if (i == list.Count || k == -1)
-                return new List<object>();
+            if (i === list.Count || k === -1)
+                return [];
 
             k += 1;
 
-            return list.GetRange(i, k - i);
+            return list.slice(i, k - i);
         };
-        const stringCalculation = x => x.Trim();
+        const stringCalculation = x => x.trim();
         this.node.Value = CalculationHelper.CalcStringOrListUnary(context, this.errorCollector, listCalculation, stringCalculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -2597,7 +2815,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Abs.
     public exitMath_Abs(context: ParserRuleContext): void {
-        const calculation = x => Math.Abs(Number(x));
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.abs(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -2613,7 +2834,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACos.
     public exitMath_ACos(context: ParserRuleContext): void {
-        const calculation = x => Math.Acos(Number(x));
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.acos(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -2629,6 +2853,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACosH.
     public exitMath_ACosH(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.Acosh(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2645,6 +2872,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ASin.
     public exitMath_ASin(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => Math.Asin(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2661,6 +2891,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ASinH.
     public exitMath_ASinH(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.Asinh(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2677,6 +2910,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ATan.
     public exitMath_ATan(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => Math.Atan(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2693,8 +2929,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ATan2.
     public exitMath_ATan2(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = (x1, x2) => Math.Atan2(Number(x1), Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -2709,6 +2948,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ATanH.
     public exitMath_ATanH(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => MathNet.Numerics.Trig.Atanh(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2725,6 +2967,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Cbrt.
     public exitMath_Cbrt(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => Math.pow(Number(x), 1.0 / 3.0);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2741,6 +2986,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Cos.
     public exitMath_Cos(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => Math.cos(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2757,6 +3005,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_CosH.
     public exitMath_CosH(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => Math.cosh(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2773,6 +3024,9 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Ceilling.
     public exitMath_Ceilling(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => Math.ceil(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -2789,7 +3043,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Clamp.
     public exitMath_Clamp(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -2797,46 +3054,51 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 3, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 3, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            !this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        const valueList = childValues[0] as List<object>;
+        let valueList = null;
+        if (TypeCheckHelper.IsArray(childValues[0]))
+            valueList = childValues[0];
+
         let value = 0;
-        if (valueList is null)
-        value = Number(childValues[0]);
+        if (!valueList)
+            value = Number(childValues[0]);
 
-        const minList = childValues[1] as List<object>;
+        let minList = null;
+        if (TypeCheckHelper.IsArray(childValues[1]))
+            minList = childValues[1];
+
         let min = 0;
-        if (minList is null)
-        min = Number(childValues[1]);
+        if (!minList)
+            min = Number(childValues[1]);
 
-        const maxList = childValues[2] as List<object>;
+        let maxList = null;
+        if (TypeCheckHelper.IsArray(childValues[2]))
+            maxList = childValues[2];
+
         let max = 0;
-        if (maxList is null)
-        max = Number(childValues[2]);
+        if (!maxList)
+            max = Number(childValues[2]);
 
-        if (valueList is null && minList is null && maxList is null)
-        {
+        if (!valueList && !minList && !maxList) {
             this.node.Value = value < min ? min : value > max ? max : value;
         }
-        else if (!(valueList is null))
-        {
-            if (minList is null && maxList is null)
-            {
+        else if (valueList) {
+            if (!minList && !maxList) {
                 this.node.Value = valueList.map(x => {
                     const valueX = Number(x);
-                    return (object)(valueX < min ? min : valueX > max ? max : value);
+                    return valueX < min ? min : valueX > max ? max : value;
                 });
             }
-            else if (minList is null && !(maxList is null))
-            {
+            else if (!minList && maxList) {
                 if (valueList.length == maxList.length) {
-                    const result = new List<object>(valueList.Count);
+                    const result = [];
                     for (let i = 0; i < valueList.Count; ++i) {
                         value = Number(valueList[i]);
                         max = Number(maxList[i]);
@@ -2845,14 +3107,13 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
                     this.node.Value = result;
                 }
                 else {
-                    this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount,`Array count must be equal: Array1 Count ${valueList.Count} Array3 Count ${maxList.Count}`);
+                    this.errorCollector.AddError(context, ErrorCode.NotEqualArayCount, `Array count must be equal: Array1 Count ${valueList.Count} Array3 Count ${maxList.Count}`);
                     this.node.Value = null;
                 }
             }
-            else if (!(minList is null) && maxList is null)
-            {
+            else if (minList && !maxList) {
                 if (valueList.length == maxList.length) {
-                    const result = new List<object>(valueList.Count);
+                    const result = [];
                     for (let i = 0; i < valueList.Count; ++i) {
                         value = Number(valueList[i]);
                         min = Number(minList[i]);
@@ -2866,7 +3127,7 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
                 }
             }
             else if (valueList.length == minList.length && minList.length == maxList.length) {
-                const result = new List<object>(valueList.Count);
+                const result = [];
                 for (let i = 0; i < valueList.Count; i += 1) {
                     const valueX = Number(valueList[i]);
                     const minX = Number(minList[i]);
@@ -2896,10 +3157,12 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_CrossSum.
     public exitMath_CrossSum(context: ParserRuleContext): void {
+        if(!this.node)
+            return;
+            
         const calculation = x => {
             let value = 0;
-            foreach(var letter in Number(x).ToString())
-            value += long.Parse(letter.ToString());
+            stringToArray(Number(x).toString()).forEach(x => value += Number(x));
             return value;
         };
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
@@ -2926,7 +3189,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Exp.
     public exitMath_Exp(context: ParserRuleContext): void {
-        const calculation = x => Math.Exp(Number(x));
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.exp(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -2942,7 +3208,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Floor.
     public exitMath_Floor(context: ParserRuleContext): void {
-        const calculation = x => Math.Floor(Number(x));
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.floor(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -2967,8 +3236,11 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Log.
     public exitMath_Log(context: ParserRuleContext): void {
-        const calculation = (x1, x2) => Math.Log(Number(x1), Number(x2));
-        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
+        if(!this.node)
+            return;
+            
+        const calculation = (x1, x2) => Math.log(Number(x1)) / Math.log(Number(x2));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
 
@@ -2983,7 +3255,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Log2.
     public exitMath_Log2(context: ParserRuleContext): void {
-        const calculation = x => Math.Log(Number(x), 2d);
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.log2(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -2999,7 +3274,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Log10.
     public exitMath_Log10(context: ParserRuleContext): void {
-        const calculation = x => Math.Log10(Number(x));
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.log10(Number(x));
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -3015,7 +3293,10 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Max_Array.
     public exitMath_Max_Array(context: ParserRuleContext): void {
-        if (!errorCollector.CheckHasParams(context, this.node.Children)) {
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
@@ -3023,796 +3304,924 @@ export class EveryGrammarCalculatorListener implements EveryGrammarListener {
 
         const childValues = this.node.Children.map(child => child.Value);
 
-        if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
+        if (!this.errorCollector.CheckParamsCount(context, 1, childValues) ||
             this.errorCollector.CheckIsNull(context, childValues) ||
-            !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            !this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
             this.node.Value = NaN;
             this.node = this.node.Parent;
             return;
         }
 
-        if (childValues[0] is List < object > list)
-        {
-            let max = decimal.MinValue;
-            foreach(var value in list)
-            max = Math.Max(max, Number(value));
+        if (TypeCheckHelper.IsArray(childValues[0])) {
+            let max = Number.MIN_VALUE;
+            childValues[0].forEach(value => max = Math.max(max, Number(value)));
             this.node.Value = max;
         }
         else
-this.node.Value = Number(childValues[0]);
+            this.node.Value = Number(childValues[0]);
 
-this.node = this.node.Parent; }
-
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Max_Two.
     public enterMath_Max_Two(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Max_Two.
     public exitMath_Max_Two(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Max(Number(x1), Number(x2));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = (x1, x2) => Math.max(Number(x1), Number(x2));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Min_Array.
     public enterMath_Min_Array(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Min_Array.
     public exitMath_Min_Array(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-const childValues = this.node.Children.map(child => child.Value);
+        const childValues = this.node.Children.map(child => child.Value);
 
-if (!errorCollector.CheckParamsCount(context, 1, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues) ||
-    !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
+        if (!this.errorCollector.CheckParamsCount(context, 1, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues) ||
+            !this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-if (childValues[0] is List < object > list)
-{
-            decimal min = decimal.MaxValue;
-    foreach(var value in list)
-    min = Math.Min(min, Number(value));
-    this.node.Value = min;
-}
+        if (TypeCheckHelper.IsArray(childValues[0])) {
+            let min = Number.MAX_VALUE;
+            childValues[0].forEach(value => min = Math.min(min, Number(value)));
+            this.node.Value = min;
+        }
         else
-this.node.Value = Number(childValues[0]);
+            this.node.Value = Number(childValues[0]);
 
-this.node = this.node.Parent; }
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Min_Two.
     public enterMath_Min_Two(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Min_Two.
     public exitMath_Min_Two(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Min(Number(x1), Number(x2));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = (x1, x2) => Math.min(Number(x1), Number(x2));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Power.
     public enterMath_Power(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Power.
     public exitMath_Power(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Pow(Number(x1), Number(x2));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = (x1, x2) => Math.pow(Number(x1), Number(x2));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Round_Not_Decimal.
     public enterMath_Round_Not_Decimal(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Round_Not_Decimal.
     public exitMath_Round_Not_Decimal(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Round(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.round(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Round_Decimal.
     public enterMath_Round_Decimal(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Round_Decimal.
     public exitMath_Round_Decimal(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Round(Number(x1), Number(x2));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = (x1, x2) => Math.Round(Number(x1), Number(x2));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Root.
     public enterMath_Root(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Root.
     public exitMath_Root(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x1, x2) => Math.Pow(Number(x1), 1 / Number(x2));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation.Invoke, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = (x1, x2) => Math.pow(Number(x1), 1 / Number(x2));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Sin.
     public enterMath_Sin(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Sin.
     public exitMath_Sin(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Sin(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.sin(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_SinH.
     public enterMath_SinH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_SinH.
     public exitMath_SinH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Sinh(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.sinh(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Sqrt.
     public enterMath_Sqrt(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Sqrt.
     public exitMath_Sqrt(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Sqrt(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.sqrt(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Tan.
     public enterMath_Tan(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Tan.
     public exitMath_Tan(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Tan(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.tan(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_TanH.
     public enterMath_TanH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_TanH.
     public exitMath_TanH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Tanh(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.tanh(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Truncate.
     public enterMath_Truncate(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Truncate.
     public exitMath_Truncate(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => Math.Truncate(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => Math.trunc(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Norm.
     public enterMath_Norm(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Norm.
     public exitMath_Norm(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const childValues = this.node.Children.map(child => child.Value);
+
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues) ||
+            !this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const list = childValues[0] as List<object>;
+
+        if (list is null)
         {
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
+            this.errorCollector.AddError(context, ErrorCode.FirstNotNumberArray, "First parameter must be an Array");
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-const childValues = this.node.Children.map(child => child.Value);
+        if (!double.TryParse(childValues[1].ToString(), outconst value)) {
+            this.errorCollector.AddError(context, ErrorCode.SecondNotNumber, "Second parameter must be a number");
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues) ||
-    !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-const list = childValues[0] as List<object>;
-
-if (list is null)
-{
-    this.errorCollector.AddError(context, ErrorCode.FirstNotNumberArray, "First parameter must be an Array");
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-if (!double.TryParse(childValues[1].ToString(), outconst value)) {
-    this.errorCollector.AddError(context, ErrorCode.SecondNotNumber, "Second parameter must be a number");
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-this.node.Value = Vector<double>.Build.DenseOfArray(Array.ConvertAll(list.ToArray(), y => Number(y))).Norm(value);
-this.node = this.node.Parent;}
+        this.node.Value = Vector<double>.Build.DenseOfArray(Array.ConvertAll(list.ToArray(), y => Number(y))).Norm(value);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_EulerNorm.
     public enterMath_EulerNorm(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_EulerNorm.
     public exitMath_EulerNorm(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = x => Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), y => Number(y))).L2Norm();
-this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = x => Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), y => Number(y))).L2Norm();
+        this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_MaxNorm.
     public enterMath_MaxNorm(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_MaxNorm.
     public exitMath_MaxNorm(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = x => Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), y => Number(y))).InfinityNorm();
-this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = x => Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), y => Number(y))).InfinityNorm();
+        this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_GreatesCommonDivisor.
     public enterMath_GreatesCommonDivisor(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_GreatesCommonDivisor.
     public exitMath_GreatesCommonDivisor(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.Euclid.GreatestCommonDivisor(Number(x), Number(y));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = (x, y) => MathNet.Numerics.Euclid.GreatestCommonDivisor(Number(x), Number(y));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_LeastCommonMultiple.
     public enterMath_LeastCommonMultiple(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_LeastCommonMultiple.
     public exitMath_LeastCommonMultiple(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.Euclid.LeastCommonMultiple(Number(x), Number(y));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = (x, y) => MathNet.Numerics.Euclid.LeastCommonMultiple(Number(x), Number(y));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_DotProduct.
     public enterMath_DotProduct(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_DotProduct.
     public exitMath_DotProduct(context: ParserRuleContext): void {
-    Converter<object, double> converter = y => Number(y);
-    Func<List< object >, List < object >, object > calculation = (x, z) =>
-        Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), converter)).DotProduct(
-            Vector<double>.Build.DenseOfArray(Array.ConvertAll(z.ToArray(), converter)));
+        if(!this.node)
+            return;
+            
+        const calculation = (x, z) =>
+            Vector<double>.Build.DenseOfArray(Array.ConvertAll(x.ToArray(), converter)).DotProduct(
+                Vector<double>.Build.DenseOfArray(Array.ConvertAll(z.ToArray(), converter)));
 
-this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Binomila.
     public enterMath_Binomila(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Binomila.
     public exitMath_Binomila(context: ParserRuleContext): void {
-    Func<object, object, object> calculation = (x, y) => MathNet.Numerics.SpecialFunctions.Binomial(Number(x), Number(y));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = (x, y) => MathNet.Numerics.SpecialFunctions.Binomial(Number(x), Number(y));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ACot.
     public enterMath_ACot(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACot.
     public exitMath_ACot(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acot(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Acot(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ACotH.
     public enterMath_ACotH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACotH.
     public exitMath_ACotH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acoth(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Acoth(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ACsc.
     public enterMath_ACsc(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACsc.
     public exitMath_ACsc(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acsc(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Acsc(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ACscH.
     public enterMath_ACscH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ACscH.
     public exitMath_ACscH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Acsch(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Acsch(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ASec.
     public enterMath_ASec(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ASec.
     public exitMath_ASec(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Asec(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Asec(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_ASecH.
     public enterMath_ASecH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_ASecH.
     public exitMath_ASecH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Asech(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Asech(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Cot.
     public enterMath_Cot(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Cot.
     public exitMath_Cot(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Cot(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Cot(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_CotH.
     public enterMath_CotH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_CotH.
     public exitMath_CotH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Coth(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Coth(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Csc.
     public enterMath_Csc(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Csc.
     public exitMath_Csc(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Csc(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Csc(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_CscH.
     public enterMath_CscH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_CscH.
     public exitMath_CscH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Csch(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Csch(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_Sec.
     public enterMath_Sec(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_Sec.
     public exitMath_Sec(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Sec(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Sec(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#Math_SecH.
     public enterMath_SecH(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#Math_SecH.
     public exitMath_SecH(context: ParserRuleContext): void {
-    Func<object, object> calculation = x => MathNet.Numerics.Trig.Sech(Number(x));
-    this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
-    this.node = this.node.Parent;
-}
+        if(!this.node)
+            return;
+            
+        const calculation = x => MathNet.Numerics.Trig.Sech(Number(x));
+        this.node.Value = CalculationHelper.CalcNumericOrNumericArrayUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#MathStatistic_CoVariance.
     public enterMathStatistic_CoVariance(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_CoVariance.
     public exitMathStatistic_CoVariance(context: ParserRuleContext): void {
-    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)ArrayStatistics.Covariance(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
-this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = (list1, list2) => (object)ArrayStatistics.Covariance(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
+        this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#MathStatistic_Mean.
     public enterMathStatistic_Mean(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Mean.
     public exitMathStatistic_Mean(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = list => (object)ArrayStatistics.Mean(Array.ConvertAll(list.ToArray(), x => Number(x)));
-this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = list => (object)ArrayStatistics.Mean(Array.ConvertAll(list.ToArray(), x => Number(x)));
+        this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#MathStatistic_Median.
     public enterMathStatistic_Median(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Median.
     public exitMathStatistic_Median(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = list => (object)ArrayStatistics.MedianInplace(Array.ConvertAll(list.ToArray(), x => Number(x)));
-this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = list => (object)ArrayStatistics.MedianInplace(Array.ConvertAll(list.ToArray(), x => Number(x)));
+        this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#MathStatistic_Pearson.
     public enterMathStatistic_Pearson(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Pearson.
     public exitMathStatistic_Pearson(context: ParserRuleContext): void {
-    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)Correlation.Pearson(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
-this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = (list1, list2) => (object)Correlation.Pearson(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
+        this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#MathStatistic_Quantil.
     public enterMathStatistic_Quantil(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Quantil.
     public exitMathStatistic_Quantil(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const childValues = this.node.Children.map(child => child.Value);
+
+        if (!this.errorCollector.CheckParamsCount(context, 2, childValues) ||
+            this.errorCollector.CheckIsNull(context, childValues) ||
+            !this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
+
+        const list = childValues[0] as List<object>;
+
+        if (list is null)
         {
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
+            this.errorCollector.AddError(context, ErrorCode.FirstNotNumberArray, "First parameter must be an Array");
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-const childValues = this.node.Children.map(child => child.Value);
+        if (!double.TryParse(childValues[1].ToString(), outconst value)) {
+            this.errorCollector.AddError(context, ErrorCode.SecondNotNumber, "Second parameter must be a number");
+            this.node.Value = NaN;
+            this.node = this.node.Parent;
+            return;
+        }
 
-if (!errorCollector.CheckParamsCount(context, 2, childValues) ||
-    this.errorCollector.CheckIsNull(context, childValues) ||
-    !errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-const list = childValues[0] as List<object>;
-
-if (list is null)
-{
-    this.errorCollector.AddError(context, ErrorCode.FirstNotNumberArray, "First parameter must be an Array");
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-if (!double.TryParse(childValues[1].ToString(), outconst value)) {
-    this.errorCollector.AddError(context, ErrorCode.SecondNotNumber, "Second parameter must be a number");
-    this.node.Value = NaN;
-    this.node = this.node.Parent;
-    return;
-}
-
-this.node.Value = ArrayStatistics.QuantileInplace(list.ConvertAll(x => Number(x)).ToArray(), value);
-this.node = this.node.Parent; }
+        this.node.Value = ArrayStatistics.QuantileInplace(list.ConvertAll(x => Number(x)).ToArray(), value);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#MathStatistic_Spearman.
     public enterMathStatistic_Spearman(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Spearman.
     public exitMathStatistic_Spearman(context: ParserRuleContext): void {
-    Func<List< object >, List < object >, object > calculation = (list1, list2) => (object)Correlation.Spearman(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
-this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = (list1, list2) => (object)Correlation.Spearman(Array.ConvertAll(list1.ToArray(), x => Number(x)), Array.ConvertAll(list2.ToArray(), x => Number(x)));
+        this.node.Value = CalculationHelper.CalcListOfNumbersBinary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#MathStatistic_StD.
     public enterMathStatistic_StD(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_StD.
     public exitMathStatistic_StD(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = list => (object)ArrayStatistics.StandardDeviation(Array.ConvertAll(list.ToArray(), x => Number(x)));
-this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = list => (object)ArrayStatistics.StandardDeviation(Array.ConvertAll(list.ToArray(), x => Number(x)));
+        this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#MathStatistic_Variance.
     public enterMathStatistic_Variance(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#MathStatistic_Variance.
     public exitMathStatistic_Variance(context: ParserRuleContext): void {
-    Func<List< object >, object > calculation = list => (object)ArrayStatistics.Variance(Array.ConvertAll(list.ToArray(), x => Number(x)));
-this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
-this.node = this.node.Parent; }
+        if(!this.node)
+            return;
+            
+        const calculation = list => (object)ArrayStatistics.Variance(Array.ConvertAll(list.ToArray(), x => Number(x)));
+        this.node.Value = CalculationHelper.CalcListOfNumbersUnary(context, this.errorCollector, calculation, this.node.Children);
+        this.node = this.node.Parent;
+    }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#expr_args.
-    public enterExpr_args(context: ParserRuleContext): void {}
+    public enterExpr_args(context: ParserRuleContext): void { }
 
 
     // Exit a parse tree produced by EveryGrammarParser#expr_args.
-    public exitExpr_args(context: ParserRuleContext): void {}
+    public exitExpr_args(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#ArrayCreation_Empty.
     public enterArrayCreation_Empty(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode([]);
-}
+        if (this.node)
+            this.node = this.node.AddChildNode([]);
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#ArrayCreation_Empty.
-    public exitArrayCreation_Empty(context: ParserRuleContext): void {}
+    public exitArrayCreation_Empty(context: ParserRuleContext): void { }
 
 
 
     // Enter a parse tree produced by EveryGrammarParser#ArrayCreation.
     public enterArrayCreation(context: ParserRuleContext): void {
-    if(this.node)
-    this.node = this.node.AddChildNode();
-}
+        if (this.node)
+            this.node = this.node.AddChildNode();
+    }
 
 
     // Exit a parse tree produced by EveryGrammarParser#ArrayCreation.
     public exitArrayCreation(context: ParserRuleContext): void {
-    if(!errorCollector.CheckHasParams(context, this.node.Children))
-        {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
+        if(!this.node)
+            return;
+            
+        if (!this.errorCollector.CheckHasParams(context, this.node.Children)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
+        }
 
-const childValues = this.node.Children.map(child => child.Value);
+        const childValues = this.node.Children.map(child => child.Value);
 
-if (ErrorCollector.CheckIsNull(context, childValues)) {
-    this.node.Value = null;
-    this.node = this.node.Parent;
-    return;
-}
+        if (this.errorCollector.CheckIsNull(context, childValues)) {
+            this.node.Value = null;
+            this.node = this.node.Parent;
+            return;
+        }
 
-this.node.Value = new List<object>(childValues);
-this.node = this.node.Parent; }
+        this.node.Value = childValues.slice();
+        this.node = this.node.Parent;
+    }
 }
