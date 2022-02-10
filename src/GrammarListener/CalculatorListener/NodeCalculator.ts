@@ -8,8 +8,6 @@
         this.Parent = parent;
     }
 
-
-
     public static CreateFromParentAndIndex(parent: NodeCalculator, index: number) {
         let node = new NodeCalculator(parent);
         node.Index = index;
@@ -28,7 +26,7 @@
         node.Value = value;
         return node;
     }
-    public AddChildNode = (value?: number) => {
+    public AddChildNode = (value?: any) => {
         if (!this.Children)
             this.Children = [];
 

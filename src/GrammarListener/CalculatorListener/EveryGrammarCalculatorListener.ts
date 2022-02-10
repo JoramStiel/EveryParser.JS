@@ -9,7 +9,7 @@ import { NodeCalculator } from './NodeCalculator';
 import { ArraySlicingType, ArraySlicingTypeExtension } from '../ArraySlicingType';
 import { CalculationHelper } from './CalculationHelper';
 import { TypeCheckHelper } from '../TypeCheckHelper';
-import { isStringNullOrWhitespace, stringArrayToString, stringToArray } from '../HelperFunctions';
+import { getRandomFloat, getRandomInt, isStringNullOrWhitespace, sequenceEqual, stringArrayToString, stringToArray } from '../HelperFunctions';
 
 // This class defines a complete listener for a parse tree produced by EveryGrammarParser.
 export class EveryGrammarCalculatorListener implements EveryGrammarListener {
@@ -324,9 +324,9 @@ if(!this.node)
         const value2 = childValues[1];
 
         if (TypeCheckHelper.IsArray(value1) && TypeCheckHelper.IsArray(value2))
-            this.node.Value = !list1.SequenceEqual(list2, new StringIgnoreCaseComparer());
+            this.node.Value = !sequenceEqual(value1, value2);
         else
-            this.node.Value = !value1.ToString().Equals(value2.ToString(), StringComparison.OrdinalIgnoreCase);
+            this.node.Value = value1.ToString().toUpperCase() !== value2.ToString().toUpperCase();
 
         this.node = this.node.Parent;
     }
@@ -363,7 +363,7 @@ if(!this.node)
         const value2 = childValues[1];
 
         if (TypeCheckHelper.IsArray(value1) && TypeCheckHelper.IsArray(value2))
-            this.node.Value = !list1.SequenceEqual(list2);
+            this.node.Value = sequenceEqual(value1, value2, false);
         else
             this.node.Value = !value1.Equals(value2);
 
@@ -401,10 +401,8 @@ if(!this.node)
         const value1 = childValues[0];
         const value2 = childValues[1];
 
-        if (TypeCheckHelper.IsArray(value2))
-            this.node.Value = !list2.Contains(value1);
-        else if (TypeCheckHelper.IsString(value2))
-            this.node.Value = !v2.Contains(value1.ToString());
+        if (TypeCheckHelper.IsArray(value2) || TypeCheckHelper.IsString(value2))
+            this.node.Value = !value2.includes(value1);
         else {
             this.errorCollector.AddError(context, ErrorCode.SecondParamIsNotArray, "The second argument is not an array");
             this.node.Value = null;
@@ -447,9 +445,9 @@ if(!this.node)
         const value2 = childValues[1];
 
         if (TypeCheckHelper.IsArray(value1) && TypeCheckHelper.IsArray(value2))
-            this.node.Value = list1.SequenceEqual(list2, new StringIgnoreCaseComparer());
+            this.node.Value = sequenceEqual(value1, value2);
         else
-            this.node.Value = value1.ToString().Equals(value2.ToString(), StringComparison.OrdinalIgnoreCase);
+            this.node.Value = value1.ToString().toUpperCase() === value2.ToString().toUpperCase();
 
         this.node = this.node.Parent;
     }
@@ -477,7 +475,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) > Number(x2));
+        const calculation = (x1, x2) => Number(x1) > Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -496,7 +494,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) >= Number(x2));
+        const calculation = (x1, x2) => Number(x1) >= Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -515,7 +513,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) < Number(x2));
+        const calculation = (x1, x2) => Number(x1) < Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -534,7 +532,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) <= Number(x2));
+        const calculation = (x1, x2) => Number(x1) <= Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -639,7 +637,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) + Number(x2));
+        const calculation = (x1, x2) => Number(x1) + Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -658,7 +656,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) - Number(x2));
+        const calculation = (x1, x2) => Number(x1) - Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -705,7 +703,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) % Number(x2));
+        const calculation = (x1, x2) => Number(x1) % Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -724,7 +722,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) * Number(x2));
+        const calculation = (x1, x2) => Number(x1) * Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -777,7 +775,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) / Number(x2));
+        const calculation = (x1, x2) => Number(x1) / Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -830,7 +828,7 @@ if(!this.node)
         if(!this.node)
             return;
             
-        const calculation = (x1, x2) => (object)(Number(x1) / Number(x2));
+        const calculation = (x1, x2) => Number(x1) / Number(x2);
         this.node.Value = CalculationHelper.CalcNumericOrNumericArrayBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
     }
@@ -875,7 +873,7 @@ if(!this.node)
         }
 
         if (TypeCheckHelper.IsArray(childValues[0]))
-            this.node.Value = list.map(x => !x);
+            this.node.Value = childValues[0].map(x => !x);
         else
             this.node.Value = !childValues[0];
 
@@ -1041,7 +1039,7 @@ if(!this.node)
         if (Number.isNaN(parsedNumber))
             this.node.AddChildNode(parsedNumber);
         else {
-            this.errorCollector.AddTypeConversionError(context, text, typeof (decimal));
+            this.errorCollector.AddTypeConversionError(context, text, "number");
             this.node.AddChildNode(NaN);
         }
     }
@@ -1065,7 +1063,7 @@ if(!this.node)
         else if (text.toLowerCase() === "pi")
             value = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214;
         else
-            value = ErrorCollector.GetCheckedArgument(context, _arguments, text);
+            value = this.errorCollector.GetCheckedArgument(context, this.arguments, text);
 
         this.node.AddChildNode(value);
     }
@@ -1085,9 +1083,9 @@ if(!this.node)
         let value: any;
 
         if (text.toLowerCase() === "DateTime.Now".toLowerCase())
-            value = DateTime.Now;
+            value = new Date(Date.now());
         else
-            value = ErrorCollector.GetCheckedObjectArgument(context, _arguments, text);
+            value = this.errorCollector.GetCheckedObjectArgument(context, this.arguments, text);
 
         this.node.AddChildNode(value);
     }
@@ -1103,11 +1101,11 @@ if(!this.node)
         if (!this.node)
             return;
 
-        const text = context.getText().trim();
-        if (text.trim || text.Length <= 2)
-            text = string.Empty;
+        let text = context.getText().trim();
+        if (text.trim || text.length <= 2)
+            text = "";
         else
-            text = text.slice(1, text.Length - 2);
+            text = text.slice(1, text.length - 2);
 
         this.node.AddChildNode(text);
     }
@@ -1193,7 +1191,7 @@ if(!this.node)
     // Enter a parse tree produced by EveryGrammarParser#Random_Decimal.
     public enterRandom_Decimal(context: ParserRuleContext): void {
         if (this.node)
-            this.nodeAddChildNode(_randomizer.NextDouble() + _randomizer.Next());
+            this.node.AddChildNode(getRandomFloat() + getRandomInt());
     }
 
 
@@ -1219,7 +1217,7 @@ if(!this.node)
 
             const result: number[] = [];
             for (let i = 0; i < count; i += 1)
-                result.push(_randomizer.NextDouble() + _randomizer.Next());
+                result.push(getRandomFloat() + getRandomInt());
 
             return result;
         };
@@ -1245,12 +1243,12 @@ if(!this.node)
             const min = Number(x);
             const max = Number(y);
 
-            let result = _randomizer.Next(min, max);
+            let result = getRandomInt(min, max);
 
             if (result === min)
-                result += Math.abs(_randomizer.NextDouble());
+                result += Math.abs(getRandomFloat());
             else
-                result += _randomizer.NextDouble();
+                result += getRandomFloat();
 
             return result;
         };
@@ -1279,12 +1277,12 @@ if(!this.node)
 
             let result: number[] = [];
             for (let i = 0; i < count; i += 1) {
-                let res = _randomizer.Next(min, max);
+                let res = getRandomInt(min, max);
 
                 if (res === min)
-                    res += Math.Abs(_randomizer.NextDouble());
+                    res += Math.abs(getRandomFloat());
                 else
-                    res += _randomizer.NextDouble();
+                    res += getRandomFloat();
 
                 result.push(res);
             }
@@ -1300,7 +1298,7 @@ if(!this.node)
     // Enter a parse tree produced by EveryGrammarParser#Random_Integer.
     public enterRandom_Integer(context: ParserRuleContext): void {
         if (this.node)
-            this.nodeAddChildNode(_randomizer.Next());
+            this.node.AddChildNode(getRandomInt());
     }
 
 
@@ -1326,7 +1324,7 @@ if(!this.node)
 
             const result: number[] = [];
             for (let i = 0; i < count; i += 1)
-                result.push(_randomizer.Next());
+                result.push(getRandomInt());
 
             return result;
         };
@@ -1353,7 +1351,7 @@ if(!this.node)
             const min = Number(x);
             const max = Number(y);
 
-            return _randomizer.Next(min, max);
+            return getRandomInt(min, max);
         };
         this.node.Value = CalculationHelper.CalcNumericBinary(context, this.errorCollector, calculation, this.node.Children);
         this.node = this.node.Parent;
@@ -1380,7 +1378,7 @@ if(!this.node)
 
             const result: number[] = [];
             for (let i = 0; i < count; i += 1)
-                result.push(_randomizer.Next(min, max));
+                result.push(getRandomInt(min, max));
 
             return result;
         };
@@ -1461,7 +1459,7 @@ if(!this.node)
         const value = childValues[0];
 
         if (TypeCheckHelper.IsArray(value))
-            this.node.Value = listValue.Any();
+            this.node.Value = value.length > 0;
         else if (TypeCheckHelper.IsString(value))
             this.node.Value = value.trim() !== "";
         else if (TypeCheckHelper.IsNumber(value))
@@ -1788,7 +1786,7 @@ if(!this.node)
             return;
         }
 
-        const date = new new Date();
+        const date = new  Date();
         const dateList: Date[] = [];
 
         if (!this.errorCollector.CheckIsNumberOrArrayOfNumbers(context, childValues)) {
@@ -1796,9 +1794,9 @@ if(!this.node)
             return;
         }
 
-        for (var datePartIndex = 0; datePartIndex < childValues.Length; datePartIndex++) {
+        for (var datePartIndex = 0; datePartIndex < childValues.length; datePartIndex++) {
             const datePartList = childValues[datePartIndex] as List<object>;
-            const datePart = -1;
+            let datePart = -1;
             if (!datePartList)
                 datePart = Number(childValues[datePartIndex]);
 
