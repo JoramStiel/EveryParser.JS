@@ -3,4 +3,4 @@ Parser for everything in your life!
 
 
 
-java -jar antlr-4.9.2-complete.jar -Dlanguage=JavaScript EveryGrammar.g4 -o ".antlr"
+java -jar antlr-4.10.1-complete.jar -Dlanguage=JavaScript EveryGrammar.g4 -o ".antlr"
